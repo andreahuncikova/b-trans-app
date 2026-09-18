@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Space Grotesk", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+
+  --color-ink: #1F1F21;
+  --color-platinum: #E7E6E6;
+  --color-slate: #78839C;
+  --color-accent: #00A99D;
+  --color-accent-light: #D6F5F2;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-platinum);
+  color: var(--color-ink);
+  margin: 0;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+}
