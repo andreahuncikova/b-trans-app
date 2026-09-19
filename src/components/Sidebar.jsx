@@ -1,14 +1,17 @@
 import { NavLink } from 'react-router-dom'
-
-const links = [
-  { to: '/prehlad', label: 'Prehľad' },
-  { to: '/zastavky', label: 'Zapísať zastávky' },
-  { to: '/report', label: 'Report' },
-  { to: '/vodici', label: 'Vodiči' },
-  { to: '/vozidla', label: 'Vozidlá' },
-]
+import { useLanguage } from '../LanguageContext.jsx'
 
 export default function Sidebar() {
+  const { t, lang, setLang } = useLanguage()
+
+  const links = [
+    { to: '/prehlad', label: t.nav.overview },
+    { to: '/zastavky', label: t.nav.logStops },
+    { to: '/report', label: t.nav.report },
+    { to: '/vodici', label: t.nav.drivers },
+    { to: '/vozidla', label: t.nav.vehicles },
+  ]
+
   return (
     <div className="w-60 shrink-0 bg-ink text-platinum flex flex-col gap-8 p-5">
       <div className="flex items-center gap-2.5">
@@ -37,13 +40,30 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="mt-auto flex items-center gap-2.5 pt-5 border-t border-white/10">
-        <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-ink">
-          MN
+      <div className="mt-auto flex flex-col gap-3 pt-5 border-t border-white/10">
+        <div className="flex gap-2 rounded-lg bg-white/5 p-1">
+          {['sk', 'en'].map((code) => (
+            <button
+              key={code}
+              type="button"
+              onClick={() => setLang(code)}
+              className={`flex-1 rounded-md px-2 py-1.5 text-xs font-semibold ${
+                lang === code ? 'bg-accent text-ink' : 'text-platinum/75'
+              }`}
+            >
+              {code.toUpperCase()}
+            </button>
+          ))}
         </div>
-        <div>
-          <div className="text-sm font-medium">Milan Novák</div>
-          <div className="text-xs text-platinum/55">Admin</div>
+
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-ink">
+            MN
+          </div>
+          <div>
+            <div className="text-sm font-medium">Milan Novák</div>
+            <div className="text-xs text-platinum/55">Admin</div>
+          </div>
         </div>
       </div>
     </div>

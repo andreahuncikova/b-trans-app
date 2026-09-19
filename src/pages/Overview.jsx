@@ -1,4 +1,5 @@
 import Sidebar from '../components/Sidebar.jsx'
+import { useLanguage } from '../LanguageContext.jsx'
 
 const days = [
   null, { d: 1 }, { d: 2, stops: 3 }, { d: 3, stops: 6 }, { d: 4, stops: 4 }, { d: 5, stops: 5 }, { d: 6 }, { d: 7 },
@@ -14,23 +15,25 @@ function heat(stops) {
 }
 
 export default function Overview() {
+  const { t } = useLanguage()
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex-1 p-9">
         <div className="flex items-start justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold">Kalendár zastávok</h1>
-            <p className="text-slate text-sm mt-1">Počet zastávok podľa dňa</p>
+            <h1 className="text-2xl font-bold">{t.overview.title}</h1>
+            <p className="text-slate text-sm mt-1">{t.overview.subtitle}</p>
           </div>
           <div className="flex gap-2 items-center">
             <div className="flex bg-white border border-gray-300 rounded-lg p-1 text-sm">
-              <button className="px-3 py-1.5 text-slate">Týždeň</button>
-              <button className="px-3 py-1.5 bg-accent text-white rounded-md font-semibold">Mesiac</button>
-              <button className="px-3 py-1.5 text-slate">Rok</button>
+              <button className="px-3 py-1.5 text-slate">{t.overview.week}</button>
+              <button className="px-3 py-1.5 bg-accent text-white rounded-md font-semibold">{t.overview.month}</button>
+              <button className="px-3 py-1.5 text-slate">{t.overview.year}</button>
             </div>
             <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
-              <option>Všetci zamestnanci</option>
+              <option>{t.overview.allEmployees}</option>
               <option>Peter K.</option>
               <option>Jozef S.</option>
             </select>
@@ -40,7 +43,7 @@ export default function Overview() {
         <div className="flex gap-5">
           <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
             <div className="grid grid-cols-7 gap-2 mb-2 text-xs font-semibold text-slate text-center">
-              {['Po', 'Ut', 'St', 'Št', 'Pi', 'So', 'Ne'].map((d) => <div key={d}>{d}</div>)}
+              {t.overview.weekdayLabels.map((d) => <div key={d}>{d}</div>)}
             </div>
             <div className="grid grid-cols-7 gap-2">
               {days.map((day, i) => (
@@ -61,8 +64,8 @@ export default function Overview() {
 
           <div className="w-72 shrink-0 flex flex-col gap-4">
             <div className="bg-white rounded-2xl shadow-sm p-5">
-              <div className="text-xs font-semibold text-accent">Streda, 15. september</div>
-              <div className="font-display text-2xl font-bold mt-1">3 zastávky</div>
+              <div className="text-xs font-semibold text-accent">{t.overview.selectedDate}</div>
+              <div className="font-display text-2xl font-bold mt-1">{t.overview.stopsText}</div>
               <div className="mt-3 flex flex-col gap-2 text-sm">
                 <div className="flex justify-between"><span className="text-slate">Peter K.</span><span className="font-semibold">2</span></div>
                 <div className="flex justify-between"><span className="text-slate">Jozef S.</span><span className="font-semibold">1</span></div>
@@ -70,7 +73,7 @@ export default function Overview() {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm p-5">
-              <div className="font-semibold text-sm mb-3">Zastávky podľa vodiča</div>
+              <div className="font-semibold text-sm mb-3">{t.overview.byDriver}</div>
               {[
                 { name: 'Peter K.', count: 49, pct: 92 },
                 { name: 'Jozef S.', count: 39, pct: 73 },

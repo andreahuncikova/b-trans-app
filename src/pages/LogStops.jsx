@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Sidebar from '../components/Sidebar.jsx'
+import { useLanguage } from '../LanguageContext.jsx'
 
 const initialDays = [
   { d: '1.9.', label: 'Ut', value: 4 }, { d: '2.9.', label: 'St', value: 3 }, { d: '3.9.', label: 'Št', value: 6 },
@@ -11,6 +12,7 @@ const initialDays = [
 ]
 
 export default function LogStops() {
+  const { t } = useLanguage()
   const [days, setDays] = useState(initialDays)
 
   const update = (i, val) => {
@@ -27,25 +29,25 @@ export default function LogStops() {
       <div className="flex-1 p-9 flex justify-center">
         <div className="w-full max-w-3xl bg-white rounded-2xl shadow-sm h-fit">
           <div className="p-6 border-b border-gray-100">
-            <h1 className="text-xl font-bold">Zapísať zastávky</h1>
-            <p className="text-sm text-slate mt-1">
-              Vyber vodiča a mesiac — počty môžeš doplniť kedykoľvek, aj spätne za celý mesiac naraz.
-            </p>
+            <h1 className="text-xl font-bold">{t.logStops.title}</h1>
+            <p className="text-sm text-slate mt-1">{t.logStops.subtitle}</p>
           </div>
 
           <div className="p-6 pb-0 flex gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium text-slate block mb-1.5">Vodič</label>
+              <label className="text-sm font-medium text-slate block mb-1.5">{t.logStops.driver}</label>
               <select className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm">
-                <option>Peter Kováč — Dodávka</option>
-                <option>Jozef Slabý — Dodávka</option>
+                {t.logStops.vehicleDrivers.map((driver) => (
+                  <option key={driver}>{driver}</option>
+                ))}
               </select>
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium text-slate block mb-1.5">Mesiac</label>
+              <label className="text-sm font-medium text-slate block mb-1.5">{t.logStops.month}</label>
               <select className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm">
-                <option>September 2026</option>
-                <option>August 2026</option>
+                {t.logStops.monthOptions.map((month) => (
+                  <option key={month}>{month}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -64,7 +66,7 @@ export default function LogStops() {
                   min="0"
                   disabled={day.weekend}
                   value={day.value ?? ''}
-                  placeholder="—"
+                  placeholder={t.logStops.placeholder}
                   onChange={(e) => update(i, e.target.value)}
                   className="w-14 text-center border border-gray-300 rounded-lg py-1.5 text-sm"
                 />
@@ -72,16 +74,14 @@ export default function LogStops() {
             ))}
           </div>
 
-          <p className="px-6 text-xs text-gray-400">
-            Prázdne polia = zatiaľ nezapísané dni. Víkendy sú needitovateľné.
-          </p>
+          <p className="px-6 text-xs text-gray-400">{t.logStops.empty}</p>
 
           <div className="p-6 mt-2 flex items-center justify-between border-t border-gray-100">
             <div className="text-sm">
-              <span className="text-slate">Spolu za mesiac:</span>
-              <span className="font-bold ml-1.5">{total} zastávok</span>
+              <span className="text-slate">{t.logStops.total}</span>
+              <span className="font-bold ml-1.5">{total} {t.logStops.stops}</span>
             </div>
-            <button className="bg-accent text-white rounded-lg px-6 py-3 font-semibold text-sm">Uložiť</button>
+            <button className="bg-accent text-white rounded-lg px-6 py-3 font-semibold text-sm">{t.logStops.save}</button>
           </div>
         </div>
       </div>
