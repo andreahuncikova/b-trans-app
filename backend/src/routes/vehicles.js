@@ -17,7 +17,6 @@ router.post('/', requireAdmin, async (req, res) => {
   res.status(201).json(vehicle)
 })
 
-// Used for both editing details and toggling the service checkbox/reason from the Vehicles page.
 router.patch('/:id', requireAdmin, async (req, res) => {
   const { name, plate, driver, lastStk, stkIntervalYears, inService, serviceReason } = req.body
   const vehicle = await Vehicle.findByIdAndUpdate(

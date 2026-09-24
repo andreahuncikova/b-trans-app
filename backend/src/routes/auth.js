@@ -18,7 +18,6 @@ function publicUser(user) {
   return { id: user._id, name: user.name, email: user.email, role: user.role, driver: user.driver }
 }
 
-// First account ever created becomes admin; after that, only an admin can register new users.
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body
   if (!name || !email || !password) {
@@ -40,7 +39,7 @@ router.post('/register', async (req, res) => {
       try {
         requesterRole = jwt.verify(token, process.env.JWT_SECRET).role
       } catch {
-        // ignore invalid token, treated as unauthenticated below
+        // fall through as unauthenticated
       }
     }
     if (requesterRole !== 'admin') {

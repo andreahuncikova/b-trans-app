@@ -5,7 +5,6 @@ import { requireAuth } from '../middleware/auth.js'
 const router = Router()
 router.use(requireAuth)
 
-// GET /api/report?year=2026&month=9 — totals per driver for that month.
 router.get('/', async (req, res) => {
   const year = Number(req.query.year)
   const month = Number(req.query.month)

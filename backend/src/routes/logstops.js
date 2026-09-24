@@ -6,13 +6,11 @@ const router = Router()
 router.use(requireAuth)
 
 function monthRange(year, month) {
-  // month is 1-12
   const start = new Date(Date.UTC(year, month - 1, 1))
   const end = new Date(Date.UTC(year, month, 1))
   return { start, end }
 }
 
-// GET /api/logstops?driver=<id>&year=2026&month=9
 router.get('/', async (req, res) => {
   const { driver, year, month } = req.query
   const filter = {}
@@ -25,7 +23,6 @@ router.get('/', async (req, res) => {
   res.json(entries)
 })
 
-// Upsert a single day's entry for a driver.
 router.put('/', async (req, res) => {
   const { driver, date, stops, hours } = req.body
   if (!driver || !date) return res.status(400).json({ error: 'driver and date are required' })
