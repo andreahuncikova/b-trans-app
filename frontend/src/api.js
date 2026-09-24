@@ -37,4 +37,6 @@ export const api = {
   saveLogStop: (entry, token) => request('/logstops', { method: 'PUT', body: entry, token }),
 
   getReport: (year, month, token) => request(`/report?year=${year}&month=${month}`, { token }),
+
+  submitApplication: (applicant) => request('/applicants', { method: 'POST', body: applicant }),
 }

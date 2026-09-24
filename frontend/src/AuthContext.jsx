@@ -38,14 +38,6 @@ export function AuthProvider({ children }) {
     setUser(user)
   }
 
-  const register = async (name, email, password) => {
-    const { token, user } = await api.register(name, email, password)
-    localStorage.setItem('btrans-token', token)
-    localStorage.setItem('btrans-user', JSON.stringify(user))
-    setToken(token)
-    setUser(user)
-  }
-
   const logout = () => {
     localStorage.removeItem('btrans-token')
     localStorage.removeItem('btrans-user')
@@ -53,7 +45,7 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
-  const value = useMemo(() => ({ token, user, ready, login, register, logout }), [token, user, ready])
+  const value = useMemo(() => ({ token, user, ready, login, logout }), [token, user, ready])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

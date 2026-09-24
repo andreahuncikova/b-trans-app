@@ -7,6 +7,7 @@ import driverRoutes from './routes/drivers.js'
 import vehicleRoutes from './routes/vehicles.js'
 import logStopRoutes from './routes/logstops.js'
 import reportRoutes from './routes/report.js'
+import applicantRoutes from './routes/applicants.js'
 
 const app = express()
 
@@ -20,6 +21,7 @@ app.use('/api/drivers', driverRoutes)
 app.use('/api/vehicles', vehicleRoutes)
 app.use('/api/logstops', logStopRoutes)
 app.use('/api/report', reportRoutes)
+app.use('/api/applicants', applicantRoutes)
 
 app.use((req, res) => res.status(404).json({ error: 'Not found' }))
 
