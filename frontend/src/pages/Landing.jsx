@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../LanguageContext.jsx'
 
 export default function Landing() {
-  const { t, lang, setLang } = useLanguage()
+  const { t } = useLanguage()
 
   const renderTitle = (title) =>
     title.split('\n').map((line, index) => (
@@ -28,21 +28,7 @@ export default function Landing() {
           <a href="#contact">{t.landing.navContact}</a>
         </nav>
         <div className="flex items-center gap-3.5">
-          <Link to="/prehlad" className="text-sm font-semibold">{t.landing.login}</Link>
-          <div className="flex items-center gap-2 rounded-lg border border-gray-200 p-1">
-            {['sk', 'en'].map((code) => (
-              <button
-                key={code}
-                type="button"
-                onClick={() => setLang(code)}
-                className={`rounded-md px-2.5 py-1 text-xs font-semibold ${
-                  lang === code ? 'bg-accent text-ink' : 'text-slate'
-                }`}
-              >
-                {code.toUpperCase()}
-              </button>
-            ))}
-          </div>
+          <Link to="/login" className="text-sm font-semibold">{t.landing.login}</Link>
           <button className="bg-accent text-white rounded-lg px-5 py-2.5 font-semibold text-sm">{t.landing.quote}</button>
         </div>
       </div>

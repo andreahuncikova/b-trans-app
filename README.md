@@ -1,24 +1,8 @@
 # B-Trans App
 
-React aplikácia pre dopravnú firmu B-Trans (Sverepec, Slovensko).
+Aplikácia pre dopravnú firmu B-Trans (Sverepec, Slovensko). Monorepo s dvomi nezávislými časťami:
 
-## Spustenie
-```
-npm install
-npm run dev
-```
+- [`frontend/`](frontend/) — React + Vite + Tailwind
+- [`backend/`](backend/) — Node.js + Express + MongoDB API s JWT prihlasovaním
 
-## Tech stack
-- React + Vite
-- Tailwind CSS v4
-- React Router
-
-## Stránky
-- `/` — verejná úvodná stránka
-- `/prehlad` — kalendár zastávok (domovská stránka admina)
-- `/zastavky` — zapísať zastávky
-- `/report` — mesačný report
-- `/vodici` — vodiči
-- `/vozidla` — vozidlá
-
-Backend (Node/Express + MongoDB) zatiaľ nie je súčasťou tohto repozitára — frontend beží zatiaľ na mock dátach priamo v komponentoch.
+Každá časť má vlastný `package.json` a spúšťa sa samostatne — pozri README v danom priečinku. Pri hostingu nastav pre každú službu (napr. Vercel/Netlify pre frontend, Render/Railway pre backend) príslušný root directory (`frontend` / `backend`).
