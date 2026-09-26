@@ -7,13 +7,16 @@ export const t = {
     vehicles: 'Vozidlá',
   },
   landing: {
+    navHome: 'Domov',
     navServices: 'Služby',
     navContact: 'Kontakt',
     login: 'Prihlásenie',
+    loginHint: 'Prihlásenie je určené len pre administrátora firmy',
     badge: 'Doprava po celom Slovensku aj do zahraničia',
     title: 'Spoľahlivá nákladná\ndoprava a rozvoz',
     description:
-      'Rodinná preprava s vlastným vozovým parkom. Popri pravidelných zvozoch pre FedEx vezmeme aj vaše priame zákazky — kamiónom aj menšími dodávkami, rýchlo a s osobným prístupom.',
+      'Popri pravidelných zvozoch pre FedEx vezmeme aj vaše priame zákazky kamiónom aj menšími dodávkami, rýchlo a s osobným prístupom.',
+    callUs: 'Zavolajte nám',
     phoneLabel: '+421 908 585 550',
     sending: 'Odosielam...',
     submitError: 'Nepodarilo sa odoslať, skús to prosím znova.',

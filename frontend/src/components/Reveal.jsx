@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 
-export default function Reveal({ children, className = '', delay = 0 }) {
+export default function Reveal({ children, className = '', delay = 0, immediate = false }) {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
+    if (immediate) {
+      const raf = requestAnimationFrame(() => setVisible(true))
+      return () => cancelAnimationFrame(raf)
+    }
+
     const el = ref.current
     if (!el) return
     const observer = new IntersectionObserver(
@@ -18,7 +23,7 @@ export default function Reveal({ children, className = '', delay = 0 }) {
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [immediate])
 
   return (
     <div
