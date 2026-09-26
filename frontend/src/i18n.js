@@ -9,6 +9,7 @@ export const t = {
   landing: {
     navHome: 'Domov',
     navServices: 'Služby',
+    navCareers: 'Kariéra',
     navContact: 'Kontakt',
     login: 'Prihlásenie',
     loginHint: 'Prihlásenie je určené len pre administrátora firmy',

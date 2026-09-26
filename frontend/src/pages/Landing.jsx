@@ -68,10 +68,22 @@ export default function Landing() {
     return () => cancelAnimationFrame(raf)
   }, [])
 
+  const [isDesktopLayout] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 1024)
+
   const vanRef = useRef(null)
   const textRef = useRef(null)
 
   useEffect(() => {
+    // Below lg, the van sits in its own row instead of beside the text,
+    // so tracking its x-position to drive the reveal doesn't apply.
+    if (window.innerWidth < 1024) {
+      if (textRef.current) {
+        textRef.current.style.clipPath = 'none'
+        textRef.current.style.transform = 'none'
+      }
+      return
+    }
+
     let frameId
     let stop = false
     const start = performance.now()
@@ -111,11 +123,11 @@ export default function Landing() {
 
   return (
     <div className="bg-white">
-      <div className="sticky top-0 z-50 flex items-center justify-between px-16 py-4 border-b border-white/10 bg-ink/90 backdrop-blur-md text-white">
+      <div className="sticky top-0 z-50 flex items-center justify-between px-6 md:px-16 py-4 border-b border-white/10 bg-ink/90 backdrop-blur-md text-white">
         <Link to="/">
           <Logo variant="light" />
         </Link>
-        <nav className="flex gap-9 text-sm font-medium text-white/70">
+        <nav className="hidden md:flex gap-9 text-sm font-medium text-white/70">
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -125,6 +137,7 @@ export default function Landing() {
           </button>
           {[
             { href: '#services', label: t.landing.navServices },
+            { href: '#drivers', label: t.landing.navCareers },
             { href: '#contact', label: t.landing.navContact },
           ].map((item) => (
             <a
@@ -151,19 +164,19 @@ export default function Landing() {
         </div>
       </div>
 
-      <div className="relative min-h-screen bg-ink text-white overflow-hidden px-16 flex items-center">
+      <div className="relative min-h-screen bg-ink text-white overflow-hidden px-6 md:px-10 lg:px-16 flex items-center py-28 lg:py-0">
         <div className="absolute -top-20 -left-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-float-a" />
         <div className="absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-accent/10 rounded-full blur-3xl animate-float-b" />
 
-        <div className="relative z-10 flex items-center gap-24 w-full">
-          <div className="flex-1 mt-16">
+        <div className="relative z-10 flex flex-col lg:flex-row items-center gap-14 lg:gap-24 w-full">
+          <div className="flex-1 lg:mt-16 text-center lg:text-left">
             <div
               ref={textRef}
               style={{ clipPath: 'inset(-140px 100% -140px 0)', transformOrigin: 'left center' }}
             >
               <div
                 style={{
-                  transform: truckArrived ? 'translateY(-115px)' : 'translateY(0)',
+                  transform: truckArrived && isDesktopLayout ? 'translateY(-115px)' : 'translateY(0)',
                   transitionProperty: 'transform',
                   transitionDuration: '700ms',
                   transitionTimingFunction: 'cubic-bezier(0.16,1,0.3,1)',
@@ -173,25 +186,25 @@ export default function Landing() {
                 <div className="inline-block bg-accent-light text-accent text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6">
                   {t.landing.badge}
                 </div>
-                <h1 className="text-6xl font-bold leading-[1.05]">{renderTitle(t.landing.title)}</h1>
+                <h1 className="text-4xl md:text-5xl lg:text-4xl xl:text-6xl font-bold leading-[1.1] xl:leading-[1.05]">{renderTitle(t.landing.title)}</h1>
               </div>
             </div>
             <div
               style={{
                 opacity: truckArrived ? 1 : 0,
-                transform: truckArrived ? 'translateY(-85px)' : 'translateY(10px)',
+                transform: truckArrived ? (isDesktopLayout ? 'translateY(-85px)' : 'translateY(0)') : 'translateY(10px)',
                 transitionProperty: 'opacity, transform',
                 transitionDuration: '700ms',
                 transitionDelay: truckArrived ? '2900ms' : '0ms',
               }}
               className="mt-6"
             >
-              <p className="text-white/65 max-w-md leading-relaxed">{t.landing.description}</p>
+              <p className="text-white/65 max-w-md mx-auto lg:mx-0 leading-relaxed">{t.landing.description}</p>
             </div>
             <div
               style={{
                 opacity: truckArrived ? 1 : 0,
-                transform: truckArrived ? 'translateY(-85px)' : 'translateY(10px)',
+                transform: truckArrived ? (isDesktopLayout ? 'translateY(-85px)' : 'translateY(0)') : 'translateY(10px)',
                 transitionProperty: 'opacity, transform',
                 transitionDuration: '700ms',
                 transitionDelay: truckArrived ? '3100ms' : '0ms',
@@ -208,13 +221,19 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="flex-1 relative" style={{ perspective: '1200px' }}>
+          <div
+            className="absolute inset-0 flex items-center justify-center opacity-20 -z-10 pointer-events-none lg:pointer-events-auto lg:opacity-100 lg:z-auto lg:static lg:flex-1"
+            style={{ perspective: '1200px' }}
+          >
+            <div className="w-full max-w-[260px] lg:max-w-none">
             <div
               ref={vanRef}
               className="relative transition-transform duration-[3200ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
                 transform: truckArrived
-                  ? 'translateX(-70px) translateY(40px) translateZ(0) rotateY(0deg) scale(1.2)'
+                  ? isDesktopLayout
+                    ? 'translateX(-70px) translateY(40px) translateZ(0) rotateY(0deg) scale(1.2)'
+                    : 'translateX(0) translateY(0) translateZ(0) rotateY(0deg) scale(1)'
                   : 'translateX(-160vw) translateY(-220px) translateZ(-800px) rotateY(60deg) scale(0.5)',
               }}
             >
@@ -228,16 +247,17 @@ export default function Landing() {
                 />
               </div>
             </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div id="services" className="px-16 py-20">
+      <div id="services" className="px-6 md:px-16 py-16 md:py-20 scroll-mt-24">
         <Reveal className="text-center mb-11">
           <h2 className="text-3xl font-bold">{t.landing.servicesTitle}</h2>
           <p className="text-slate mt-2.5">{t.landing.servicesSubtitle}</p>
         </Reveal>
-        <div className="flex gap-6">
+        <div className="flex flex-col md:flex-row gap-6">
           {t.landing.serviceItems.map((s, i) => (
             <Reveal key={s.title} delay={i * 100} className="flex-1">
               <div className="h-full p-8 border border-gray-100 rounded-2xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
@@ -250,14 +270,21 @@ export default function Landing() {
         </div>
       </div>
 
-      <div className="bg-platinum px-16 py-16 flex items-center gap-14">
-        <Reveal className="flex-1">
-          <h2 className="text-2xl font-bold">{t.landing.driversTitle}</h2>
-          <p className="text-slate mt-3 max-w-sm">{t.landing.driversText}</p>
+      <div id="drivers" className="relative bg-platinum px-6 md:px-16 py-16 md:py-28 flex flex-col md:flex-row items-center gap-10 md:gap-14 scroll-mt-24 overflow-hidden text-center md:text-left">
+        <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-80 h-80 bg-accent/15 rounded-full blur-3xl" />
+        <Reveal className="flex-1 relative">
+          <h2 className="text-3xl font-bold">
+            {(() => {
+              const words = t.landing.driversTitle.split(' ')
+              const last = words.pop()
+              return <>{words.join(' ')} <span className="text-accent">{last}</span></>
+            })()}
+          </h2>
+          <p className="text-slate mt-3 max-w-sm mx-auto md:mx-0">{t.landing.driversText}</p>
         </Reveal>
-        <Reveal delay={150} className="flex-1">
-          <form onSubmit={submitCv} className="bg-white rounded-2xl p-7 shadow-sm">
-            <div className="flex gap-3.5 mb-3.5">
+        <Reveal delay={200} className="flex-1 relative">
+          <form onSubmit={submitCv} className="bg-white rounded-2xl p-7 shadow-sm text-left">
+            <div className="flex flex-col sm:flex-row gap-3.5 mb-3.5">
               <input
                 value={cv.name}
                 onChange={(e) => setCv((c) => ({ ...c, name: e.target.value }))}
@@ -296,19 +323,45 @@ export default function Landing() {
         </Reveal>
       </div>
 
-      <div id="contact" className="bg-ink text-white px-16 py-14 flex items-center justify-between">
-        <Reveal>
-          <h2 className="text-2xl font-bold">{t.landing.contactTitle}</h2>
-          <p className="text-white/65 mt-2">{t.landing.contactText}</p>
+      <div id="contact" className="bg-ink text-white px-6 md:px-16 py-16 md:py-28 scroll-mt-24">
+        <Reveal className="text-center mb-11">
+          <h2 className="text-3xl font-bold">{t.landing.contactTitle}</h2>
+          <p className="text-white/65 mt-2.5">{t.landing.contactText}</p>
         </Reveal>
-        <Reveal delay={150} className="flex gap-10 text-sm">
-          <div><div className="text-white/50 text-xs mb-1">{t.landing.phone}</div><div className="font-semibold">+421 908 585 550</div></div>
-          <div><div className="text-white/50 text-xs mb-1">{t.landing.email}</div><div className="font-semibold">b.huncik@gmail.com</div></div>
-          <div><div className="text-white/50 text-xs mb-1">{t.landing.address}</div><div className="font-semibold">{t.landing.location}</div></div>
-        </Reveal>
+        <div className="flex flex-col md:flex-row gap-6">
+          {[
+            {
+              label: t.landing.phone,
+              value: '+421 908 585 550',
+              icon: <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z" />,
+            },
+            {
+              label: t.landing.email,
+              value: 'b.huncik@gmail.com',
+              icon: <><path d="M4 4h16v16H4z" /><path d="M4 6l8 7 8-7" /></>,
+            },
+            {
+              label: t.landing.address,
+              value: t.landing.location,
+              icon: <><path d="M21 10c0 6.5-9 12-9 12s-9-5.5-9-12a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></>,
+            },
+          ].map((item, i) => (
+            <Reveal key={item.label} delay={i * 100} className="flex-1">
+              <div className="h-full p-8 border border-white/10 rounded-2xl hover:bg-white/5 hover:-translate-y-1 transition-all duration-300 text-center">
+                <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center mb-4 mx-auto">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00A99D" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    {item.icon}
+                  </svg>
+                </div>
+                <div className="text-white/50 text-xs mb-1">{item.label}</div>
+                <div className="font-semibold">{item.value}</div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
       </div>
 
-      <div className="px-16 py-6 flex justify-between text-xs text-gray-400 border-t border-gray-100">
+      <div className="px-6 md:px-16 py-6 flex flex-col md:flex-row gap-1 justify-between text-xs text-gray-400 border-t border-gray-100 text-center md:text-left">
         <div>{t.landing.footer}</div>
         <div>{t.landing.location}</div>
       </div>
