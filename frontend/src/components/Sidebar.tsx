@@ -53,7 +53,7 @@ export default function Sidebar() {
       <div className="mt-auto flex flex-col gap-3 pt-5 border-t border-white/10">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-ink shrink-0">
-            {user ? initials(user.name) : '—'}
+            {user ? initials(user.name) : '-'}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium truncate">{user?.name}</div>

@@ -92,7 +92,7 @@ export default function Vehicles() {
             const soon = daysLeft !== null && daysLeft <= SOON_DAYS
             const nextLabel = next
               ? next.toLocaleDateString('sk-SK', { day: 'numeric', month: 'long', year: 'numeric' })
-              : '—'
+              : '-'
             return (
               <div key={v._id} className="bg-white rounded-2xl shadow-sm p-5 flex flex-col gap-4">
                 <div className="flex items-center gap-5">
@@ -140,7 +140,7 @@ export default function Vehicles() {
                       onChange={(e: ChangeEvent<HTMLSelectElement>) => patchVehicle(v._id, { driver: e.target.value || null })}
                       className="border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:border-accent"
                     >
-                      <option value="">—</option>
+                      <option value="">-</option>
                       {drivers.map((d) => (
                         <option key={d._id} value={d._id}>{d.name}</option>
                       ))}
@@ -201,7 +201,7 @@ export default function Vehicles() {
                 <input
                   value={newVehicle.name}
                   onChange={(e) => setNewVehicle((n) => ({ ...n, name: e.target.value }))}
-                  placeholder="napr. Dodávka — Fiat Ducato"
+                  placeholder="napr. Dodávka Fiat Ducato"
                   required
                   className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"
                 />
