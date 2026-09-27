@@ -11,7 +11,7 @@ interface ReportRow {
 export async function getMonthlyReport(req: Request, res: Response) {
   const year = Number(req.query.year)
   const month = Number(req.query.month)
-  if (!year || !month) return res.status(400).json({ error: 'year and month are required' })
+  if (!year || !month) return res.status(400).json({ error: 'Rok a mesiac sú povinné' })
 
   const start = new Date(Date.UTC(year, month - 1, 1))
   const end = new Date(Date.UTC(year, month, 1))

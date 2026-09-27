@@ -3,7 +3,7 @@ import Applicant from '../models/Applicant.js'
 
 export async function createApplicant(req: Request, res: Response) {
   const { name, phone, email } = req.body
-  if (!name) return res.status(400).json({ error: 'name is required' })
+  if (!name) return res.status(400).json({ error: 'Meno je povinné' })
   const applicant = await Applicant.create({ name, phone, email })
   res.status(201).json(applicant)
 }

@@ -9,14 +9,19 @@ interface RequestOptions {
 }
 
 async function request<T>(path: string, { method = 'GET', body, token }: RequestOptions = {}): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  })
+  let res: Response
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    })
+  } catch {
+    throw new Error('Nepodarilo sa spojiť so serverom. Skontrolujte pripojenie a skúste to znova.')
+  }
 
   if (res.status === 204) return null as T
 

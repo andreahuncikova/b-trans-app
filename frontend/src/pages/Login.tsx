@@ -38,9 +38,11 @@ export default function Login() {
         </Link>
 
         <h1 className="text-lg font-bold mb-1">Prihlásenie</h1>
-        <p className="text-sm text-slate mb-5">Prihlás sa do administrácie B-Trans.</p>
+        <p className="text-sm text-slate mb-5">Táto stránka je určená len pre administrátora firmy B-Trans.</p>
 
+        <label htmlFor="login-email" className="sr-only">E-mail</label>
         <input
+          id="login-email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -48,7 +50,9 @@ export default function Login() {
           required
           className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mb-3"
         />
+        <label htmlFor="login-password" className="sr-only">Heslo</label>
         <input
+          id="login-password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

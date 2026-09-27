@@ -5,5 +5,5 @@ export const authLimiter = rateLimit({
   limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'Too many attempts, please try again later.' },
+  message: { error: 'Príliš veľa pokusov, skúste to prosím neskôr.' },
 })

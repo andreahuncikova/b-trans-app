@@ -21,7 +21,7 @@ export async function listLogStops(req: Request, res: Response) {
 
 export async function upsertLogStop(req: Request, res: Response) {
   const { driver, date, stops, hours } = req.body
-  if (!driver || !date) return res.status(400).json({ error: 'driver and date are required' })
+  if (!driver || !date) return res.status(400).json({ error: 'Vodič a dátum sú povinné' })
 
   const entry = await LogStop.findOneAndUpdate(
     { driver, date: new Date(date) },
@@ -33,6 +33,6 @@ export async function upsertLogStop(req: Request, res: Response) {
 
 export async function deleteLogStop(req: Request, res: Response) {
   const entry = await LogStop.findByIdAndDelete(req.params.id)
-  if (!entry) return res.status(404).json({ error: 'Entry not found' })
+  if (!entry) return res.status(404).json({ error: 'Záznam nenájdený' })
   res.status(204).end()
 }

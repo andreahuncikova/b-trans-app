@@ -26,11 +26,11 @@ app.use('/api/logstops', logStopRoutes)
 app.use('/api/report', reportRoutes)
 app.use('/api/applicants', applicantRoutes)
 
-app.use((_req: Request, res: Response) => res.status(404).json({ error: 'Not found' }))
+app.use((_req: Request, res: Response) => res.status(404).json({ error: 'Stránka nenájdená' }))
 
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err)
-  res.status(500).json({ error: 'Internal server error' })
+  res.status(500).json({ error: 'Interná chyba servera' })
 })
 
 const port = process.env.PORT || 4000

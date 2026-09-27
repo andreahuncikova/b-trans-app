@@ -8,7 +8,7 @@ export async function listDrivers(_req: Request, res: Response) {
 
 export async function createDriver(req: Request, res: Response) {
   const { name, role, type, status } = req.body
-  if (!name) return res.status(400).json({ error: 'name is required' })
+  if (!name) return res.status(400).json({ error: 'Meno je povinné' })
   const driver = await Driver.create({ name, role, type, status })
   res.status(201).json(driver)
 }
@@ -20,12 +20,12 @@ export async function updateDriver(req: Request, res: Response) {
     { $set: { name, role, type, status } },
     { new: true, runValidators: true, omitUndefined: true }
   )
-  if (!driver) return res.status(404).json({ error: 'Driver not found' })
+  if (!driver) return res.status(404).json({ error: 'Vodič nenájdený' })
   res.json(driver)
 }
 
 export async function deleteDriver(req: Request, res: Response) {
   const driver = await Driver.findByIdAndDelete(req.params.id)
-  if (!driver) return res.status(404).json({ error: 'Driver not found' })
+  if (!driver) return res.status(404).json({ error: 'Vodič nenájdený' })
   res.status(204).end()
 }

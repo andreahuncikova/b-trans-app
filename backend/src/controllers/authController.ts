@@ -19,10 +19,10 @@ function publicUser(user: IUser) {
 export async function register(req: Request, res: Response) {
   const { name, email, password } = req.body
   if (!name || !email || !password) {
-    return res.status(400).json({ error: 'name, email and password are required' })
+    return res.status(400).json({ error: 'Meno, email a heslo sú povinné' })
   }
   if (password.length < 8) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters' })
+    return res.status(400).json({ error: 'Heslo musí mať aspoň 8 znakov' })
   }
 
   const userCount = await User.countDocuments()
@@ -40,12 +40,12 @@ export async function register(req: Request, res: Response) {
       }
     }
     if (requesterRole !== 'admin') {
-      return res.status(403).json({ error: 'Only an admin can create new accounts' })
+      return res.status(403).json({ error: 'Nové účty môže vytvárať len administrátor' })
     }
   }
 
   const existing = await User.findOne({ email: email.toLowerCase() })
-  if (existing) return res.status(409).json({ error: 'Email already registered' })
+  if (existing) return res.status(409).json({ error: 'Email je už zaregistrovaný' })
 
   const passwordHash = await bcrypt.hash(password, 10)
   const role = userCount === 0 ? 'admin' : 'driver'
@@ -56,20 +56,20 @@ export async function register(req: Request, res: Response) {
 
 export async function login(req: Request, res: Response) {
   const { email, password } = req.body
-  if (!email || !password) return res.status(400).json({ error: 'email and password are required' })
+  if (!email || !password) return res.status(400).json({ error: 'Email a heslo sú povinné' })
 
   const user = await User.findOne({ email: email.toLowerCase() })
-  if (!user) return res.status(401).json({ error: 'Invalid credentials' })
+  if (!user) return res.status(401).json({ error: 'Nesprávny email alebo heslo' })
 
   const ok = await bcrypt.compare(password, user.passwordHash)
-  if (!ok) return res.status(401).json({ error: 'Invalid credentials' })
+  if (!ok) return res.status(401).json({ error: 'Nesprávny email alebo heslo' })
 
   res.json({ token: signToken(user), user: publicUser(user) })
 }
 
 export async function me(req: Request, res: Response) {
   const user = await User.findById(req.user?.sub)
-  if (!user) return res.status(404).json({ error: 'User not found' })
+  if (!user) return res.status(404).json({ error: 'Používateľ nenájdený' })
   res.json({ user: publicUser(user) })
 }
 
