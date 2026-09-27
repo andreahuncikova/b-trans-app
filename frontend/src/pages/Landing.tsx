@@ -204,6 +204,7 @@ export default function Landing() {
                 opacity: truckArrived ? 1 : 0,
                 transform: truckArrived ? (isDesktopLayout ? 'translateY(-85px)' : 'translateY(0)') : 'translateY(10px)',
                 transitionProperty: 'opacity, transform',
+                transitionDuration: '700ms',
                 transitionDelay: truckArrived ? '3100ms' : '0ms',
               }}
               className="mt-5"
