@@ -6,7 +6,7 @@ import { useFetch } from '../hooks/useFetch.ts'
 import { api } from '../api.ts'
 import { monthOptions } from '../dateUtils.ts'
 
-const WEEKDAY_LABELS = ['Ne', 'Po', 'Ut', 'St', 'Št', 'Pi', 'So']
+const WEEKDAY_LABELS = ['Po', 'Ut', 'St', 'Št', 'Pi', 'So', 'Ne']
 
 interface MonthOption {
   year: number
@@ -16,25 +16,26 @@ interface MonthOption {
 
 interface DayInfo {
   day: number
-  label: string
   weekend: boolean
   today: boolean
 }
 
-function buildDays(year: number, month: number): DayInfo[] {
-  const count = new Date(year, month, 0).getDate()
+function buildCalendarDays(year: number, month: number): (DayInfo | null)[] {
+  const daysInMonth = new Date(year, month, 0).getDate()
+  const firstWeekday = new Date(year, month - 1, 1).getDay() // 0=Sun..6=Sat
+  const leadingNulls = (firstWeekday + 6) % 7 // shift to Monday-first
   const today = new Date()
-  return Array.from({ length: count }, (_, i) => {
-    const day = i + 1
+  const cells: (DayInfo | null)[] = Array(leadingNulls).fill(null)
+  for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month - 1, day)
     const weekday = date.getDay()
-    return {
+    cells.push({
       day,
-      label: WEEKDAY_LABELS[weekday],
       weekend: weekday === 0 || weekday === 6,
       today: date.toDateString() === today.toDateString(),
-    }
-  })
+    })
+  }
+  return cells
 }
 
 export default function LogStops() {
@@ -76,7 +77,7 @@ export default function LogStops() {
     setEntryIds(idsByDay)
   }, [entries])
 
-  const days = buildDays(selected.year, selected.month)
+  const calendarDays = buildCalendarDays(selected.year, selected.month)
   const total = Object.values(values).reduce((sum: number, v) => sum + (v || 0), 0)
 
   const update = (day: number, val: string) => {
@@ -90,16 +91,22 @@ export default function LogStops() {
     try {
       const toSave = Object.entries(values).filter(([, v]) => v !== undefined)
       const toDelete = Object.entries(entryIds).filter(([day]) => values[Number(day)] === undefined)
-      await Promise.all([
-        ...toSave.map(([day, stops]) => {
-          const date = `${selected.year}-${String(selected.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-          return api.saveLogStop({ driver: driverId, date, stops: stops as number }, token!)
-        }),
-        ...toDelete.map(([, id]) => api.deleteLogStop(id, token!)),
+      const [savedEntries] = await Promise.all([
+        Promise.all(
+          toSave.map(async ([day, stops]) => {
+            const date = `${selected.year}-${String(selected.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+            const entry = await api.saveLogStop({ driver: driverId, date, stops: stops as number }, token!)
+            return [Number(day), entry._id] as const
+          })
+        ),
+        Promise.all(toDelete.map(([, id]) => api.deleteLogStop(id, token!))),
       ])
       setEntryIds((ids) => {
         const next = { ...ids }
         toDelete.forEach(([day]) => delete next[Number(day)])
+        savedEntries.forEach(([day, id]) => {
+          next[day] = id
+        })
         return next
       })
       setSavedMsg('Uložené.')
@@ -113,71 +120,86 @@ export default function LogStops() {
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 p-9 flex justify-center">
-        <div className="w-full max-w-3xl bg-white rounded-2xl shadow-sm h-fit">
-          <div className="p-6 border-b border-gray-100">
-            <h1 className="text-xl font-bold">{t.logStops.title}</h1>
-            <p className="text-sm text-slate mt-1">{t.logStops.subtitle}</p>
+      <div className="flex-1 p-8">
+        <div className="flex items-start justify-between mb-5">
+          <div>
+            <h1 className="text-2xl font-bold">{t.logStops.title}</h1>
+            <p className="text-slate text-sm mt-1">{t.logStops.subtitle}</p>
           </div>
-
-          <div className="p-6 pb-0 flex gap-4">
-            <div className="flex-1">
-              <label className="text-sm font-medium text-slate block mb-1.5">{t.logStops.driver}</label>
+          <div className="flex gap-2.5 items-center">
+            <div className="relative">
               <select
                 value={driverId}
                 onChange={(e) => setDriverId(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"
+                className="appearance-none border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 text-sm bg-white cursor-pointer hover:border-gray-400 transition-colors"
               >
                 {drivers.map((d) => (
                   <option key={d._id} value={d._id}>{d.name}</option>
                 ))}
               </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
             </div>
-            <div className="flex-1">
-              <label className="text-sm font-medium text-slate block mb-1.5">{t.logStops.month}</label>
+            <div className="relative">
               <select
                 value={`${selected.year}-${selected.month}`}
                 onChange={(e) => {
                   const m = months.find((o) => `${o.year}-${o.month}` === e.target.value)
                   if (m) setSelected(m)
                 }}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"
+                className="appearance-none border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 text-sm bg-white cursor-pointer hover:border-gray-400 transition-colors"
               >
                 {months.map((m) => (
                   <option key={`${m.year}-${m.month}`} value={`${m.year}-${m.month}`}>{m.label}</option>
                 ))}
               </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
             </div>
           </div>
+        </div>
 
-          {error && <p className="px-6 pt-4 text-sm text-red-600">{error}</p>}
-          {loading && <p className="px-6 pt-4 text-sm text-slate">Načítavam...</p>}
+        {!driverId && !loading && (
+          <p className="text-sm text-slate mb-4">Najprv pridaj vodiča v sekcii Vodiči.</p>
+        )}
+        {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+        {loading && <p className="text-sm text-slate mb-4">Načítavam...</p>}
 
-          <div className="p-6 grid grid-cols-3 gap-x-5 gap-y-2">
-            {days.map((day) => (
+        <div className="bg-white rounded-2xl shadow-sm p-5">
+          <div className="grid grid-cols-7 gap-2 mb-2 text-xs font-semibold text-slate text-center">
+            {WEEKDAY_LABELS.map((d) => <div key={d}>{d}</div>)}
+          </div>
+          <div className="grid grid-cols-7 gap-2">
+            {calendarDays.map((day, i) => (
               <div
-                key={day.day}
-                className={`flex items-center justify-between py-1.5 ${day.weekend ? 'opacity-40' : ''} ${
-                  day.today ? 'bg-accent-light rounded-lg px-2' : ''
-                }`}
+                key={i}
+                className={`rounded-lg p-2 h-20 flex flex-col items-center justify-center gap-1.5 ${
+                  day ? (day.weekend ? 'bg-gray-50 opacity-50' : 'bg-[#F9F8F4]') : ''
+                } ${day?.today ? 'ring-2 ring-accent' : ''}`}
               >
-                <span className={`text-sm ${day.today ? 'font-semibold' : ''}`}>{day.label} {day.day}.</span>
-                <input
-                  type="number"
-                  min="0"
-                  disabled={day.weekend}
-                  value={values[day.day] ?? ''}
-                  placeholder={t.logStops.placeholder}
-                  onChange={(e) => update(day.day, e.target.value)}
-                  className="w-14 text-center border border-gray-300 rounded-lg py-1.5 text-sm"
-                />
+                {day && (
+                  <>
+                    <span className={`text-xs ${day.today ? 'font-semibold text-accent' : 'text-slate'}`}>{day.day}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      disabled={day.weekend}
+                      value={values[day.day] ?? ''}
+                      placeholder={t.logStops.placeholder}
+                      onChange={(e) => update(day.day, e.target.value)}
+                      className="w-14 text-center border border-gray-300 rounded-lg py-1 text-sm bg-white disabled:bg-transparent"
+                    />
+                  </>
+                )}
               </div>
             ))}
           </div>
 
-          <p className="px-6 text-xs text-gray-400">{t.logStops.empty}</p>
+          <p className="text-xs text-gray-400 mt-4">{t.logStops.empty}</p>
 
-          <div className="p-6 mt-2 flex items-center justify-between border-t border-gray-100">
+          <div className="mt-4 pt-4 flex items-center justify-between border-t border-gray-100">
             <div className="text-sm">
               <span className="text-slate">{t.logStops.total}</span>
               <span className="font-bold ml-1.5">{total} {t.logStops.stops}</span>
