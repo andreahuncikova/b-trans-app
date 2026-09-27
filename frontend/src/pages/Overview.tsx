@@ -106,43 +106,56 @@ export default function Overview() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-9 flex flex-col overflow-hidden">
+      <div className="flex-1 p-9 flex flex-col overflow-y-auto">
         <div className="flex items-start justify-between mb-5 shrink-0">
           <div>
             <h1 className="text-2xl font-bold">{t.overview.title}</h1>
             <p className="text-slate text-sm mt-1">{t.overview.subtitle}</p>
           </div>
-          <div className="flex gap-2 items-center">
-            <select
-              value={`${selected.year}-${selected.month}`}
-              onChange={(e) => {
-                const m = months.find((o) => `${o.year}-${o.month}` === e.target.value)
-                if (m) setSelected(m)
-              }}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
-            >
-              {months.map((m) => (
-                <option key={`${m.year}-${m.month}`} value={`${m.year}-${m.month}`}>{m.label}</option>
-              ))}
-            </select>
-            <select
-              value={selectedDriverId}
-              onChange={(e) => setSelectedDriverId(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
-            >
-              <option value="">{t.overview.allEmployees}</option>
-              {drivers.map((d) => (
-                <option key={d._id} value={d._id}>{d.name}</option>
-              ))}
-            </select>
+          <div className="flex gap-2.5 items-center">
+            <div className="relative">
+              <select
+                value={`${selected.year}-${selected.month}`}
+                onChange={(e) => {
+                  const m = months.find((o) => `${o.year}-${o.month}` === e.target.value)
+                  if (m) setSelected(m)
+                }}
+                className="appearance-none border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 text-sm bg-white cursor-pointer hover:border-gray-400 transition-colors"
+              >
+                {months.map((m) => (
+                  <option key={`${m.year}-${m.month}`} value={`${m.year}-${m.month}`}>{m.label}</option>
+                ))}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </div>
+            <div className="relative">
+              <select
+                value={selectedDriverId}
+                onChange={(e) => setSelectedDriverId(e.target.value)}
+                className="appearance-none border border-gray-300 rounded-lg pl-3.5 pr-9 py-2.5 text-sm bg-white cursor-pointer hover:border-gray-400 transition-colors"
+              >
+                <option value="">{t.overview.allEmployees}</option>
+                {drivers.map((d) => (
+                  <option key={d._id} value={d._id}>{d.name}</option>
+                ))}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </div>
             <button
               type="button"
               onClick={exportCsv}
               disabled={reportRows.length === 0}
-              className="border border-gray-300 rounded-lg px-3.5 py-2 text-sm font-semibold bg-white disabled:opacity-50"
+              className="flex items-center gap-2 border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm font-semibold bg-white hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white disabled:hover:border-gray-300 transition-colors"
             >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3v12m0 0l-4-4m4 4l4-4M4 18v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
+              </svg>
               {t.overview.export}
             </button>
           </div>
@@ -221,7 +234,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm flex flex-col flex-1 min-h-0">
+        <div className="bg-white rounded-2xl shadow-sm flex flex-col flex-1 min-h-[180px]">
           <div className="px-5 py-4 border-b border-gray-100 font-semibold text-sm shrink-0">{t.overview.byDriver}</div>
           <div className="grid grid-cols-4 px-5 py-2.5 text-xs text-gray-400 font-semibold uppercase shrink-0">
             <div>{t.overview.driver}</div><div>{t.overview.workedDays}</div><div>{t.overview.hoursLabel}</div><div>{t.overview.stopsLabel}</div>
