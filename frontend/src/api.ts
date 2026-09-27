@@ -36,6 +36,7 @@ export const api = {
   register: (name: string, email: string, password: string, token?: string) =>
     request<AuthResponse>('/auth/register', { method: 'POST', body: { name, email, password }, token }),
   me: (token: string) => request<{ user: User }>('/auth/me', { token }),
+  logout: (token: string) => request<null>('/auth/logout', { method: 'POST', token }),
 
   getDrivers: (token: string) => request<Driver[]>('/drivers', { token }),
   addDriver: (driver: Partial<Driver>, token: string) =>

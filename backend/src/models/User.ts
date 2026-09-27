@@ -6,6 +6,7 @@ export interface IUser extends Document {
   passwordHash: string
   role: 'admin' | 'driver'
   driver: Types.ObjectId | null
+  tokenVersion: number
   createdAt: Date
   updatedAt: Date
 }
@@ -17,6 +18,7 @@ const userSchema = new Schema<IUser>(
     passwordHash: { type: String, required: true },
     role: { type: String, enum: ['admin', 'driver'], default: 'driver' },
     driver: { type: Schema.Types.ObjectId, ref: 'Driver', default: null },
+    tokenVersion: { type: Number, default: 0 },
   },
   { timestamps: true }
 )

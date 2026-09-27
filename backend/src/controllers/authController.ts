@@ -6,7 +6,7 @@ import type { AuthTokenPayload } from '../middleware/auth.js'
 
 function signToken(user: IUser) {
   return jwt.sign(
-    { sub: user._id.toString(), role: user.role, name: user.name },
+    { sub: user._id.toString(), role: user.role, name: user.name, tokenVersion: user.tokenVersion },
     process.env.JWT_SECRET as string,
     { expiresIn: '7d' }
   )
@@ -25,11 +25,10 @@ export async function register(req: Request, res: Response) {
     return res.status(400).json({ error: 'Password must be at least 8 characters' })
   }
 
-  const existing = await User.findOne({ email: email.toLowerCase() })
-  if (existing) return res.status(409).json({ error: 'Email already registered' })
-
   const userCount = await User.countDocuments()
   if (userCount > 0) {
+    // Checked before the email lookup below so an unauthenticated caller always gets a
+    // uniform 403 and can't use the 409/403 split to probe which emails are registered.
     const header = req.headers.authorization || ''
     const token = header.startsWith('Bearer ') ? header.slice(7) : null
     let requesterRole: string | null = null
@@ -44,6 +43,9 @@ export async function register(req: Request, res: Response) {
       return res.status(403).json({ error: 'Only an admin can create new accounts' })
     }
   }
+
+  const existing = await User.findOne({ email: email.toLowerCase() })
+  if (existing) return res.status(409).json({ error: 'Email already registered' })
 
   const passwordHash = await bcrypt.hash(password, 10)
   const role = userCount === 0 ? 'admin' : 'driver'
@@ -69,4 +71,9 @@ export async function me(req: Request, res: Response) {
   const user = await User.findById(req.user?.sub)
   if (!user) return res.status(404).json({ error: 'User not found' })
   res.json({ user: publicUser(user) })
+}
+
+export async function logout(req: Request, res: Response) {
+  await User.findByIdAndUpdate(req.user?.sub, { $inc: { tokenVersion: 1 } })
+  res.status(204).end()
 }

@@ -7,7 +7,7 @@ interface AuthContextValue {
   user: User | null
   ready: boolean
   login: (email: string, password: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -47,11 +47,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(user)
   }
 
-  const logout = () => {
+  const logout = async () => {
+    const currentToken = token
     localStorage.removeItem('btrans-token')
     localStorage.removeItem('btrans-user')
     setToken(null)
     setUser(null)
+    if (currentToken) {
+      try {
+        await api.logout(currentToken)
+      } catch {
+        // best effort: client is already logged out locally even if this request fails
+      }
+    }
   }
 
   const value = useMemo(() => ({ token, user, ready, login, logout }), [token, user, ready])
