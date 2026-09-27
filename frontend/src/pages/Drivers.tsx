@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import Sidebar from '../components/Sidebar.tsx'
+import Spinner from '../components/Spinner.tsx'
 import { t } from '../i18n.ts'
 import { useAuth } from '../AuthContext.tsx'
 import { useFetch } from '../hooks/useFetch.ts'
@@ -98,8 +99,11 @@ export default function Drivers() {
         </div>
 
         {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-        {loading && <p className="text-sm text-slate mb-4">Načítavam...</p>}
 
+        {loading ? (
+          <Spinner />
+        ) : (
+        <>
         <div className="text-xs font-semibold text-gray-400 uppercase mb-2">{t.drivers.permanentTitle}</div>
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-7">
           {permanent.map((p, i) => (
@@ -138,7 +142,7 @@ export default function Drivers() {
               <AddForm />
             </div>
           )}
-          {permanent.length === 0 && addingType !== 'permanent' && !loading && (
+          {permanent.length === 0 && addingType !== 'permanent' && (
             <div className="px-5 py-4 text-sm text-slate">Zatiaľ žiadni stáli vodiči.</div>
           )}
         </div>
@@ -192,6 +196,8 @@ export default function Drivers() {
             </div>
           )}
         </div>
+        </>
+        )}
       </div>
     </div>
   )

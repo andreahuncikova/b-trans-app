@@ -63,7 +63,7 @@ export default function Overview() {
   const { data: driversData } = useFetch(() => api.getDrivers(token!), [token])
   const drivers = driversData ?? []
 
-  const { data: entriesData, loading, error } = useFetch(
+  const { data: entriesData, error } = useFetch(
     () => api.getLogStops({ year: String(year), month: String(month) }, token!),
     [token, year, month]
   )
@@ -163,7 +163,6 @@ export default function Overview() {
         </div>
 
         {error && <p className="text-sm text-red-600 mb-4 shrink-0">{error}</p>}
-        {loading && <p className="text-sm text-slate mb-4 shrink-0">Načítavam...</p>}
 
         <div className="flex gap-4 mb-5 shrink-0">
           <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">

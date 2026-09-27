@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import Sidebar from '../components/Sidebar.tsx'
+import Spinner from '../components/Spinner.tsx'
 import { t } from '../i18n.ts'
 import { useAuth } from '../AuthContext.tsx'
 import { useFetch } from '../hooks/useFetch.ts'
@@ -76,14 +77,25 @@ export default function Vehicles() {
     <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex-1 p-9">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">{t.vehicles.title}</h1>
-          <p className="text-slate text-sm mt-1">{t.vehicles.subtitle}</p>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">{t.vehicles.title}</h1>
+            <p className="text-slate text-sm mt-1">{t.vehicles.subtitle}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAdding(true)}
+            className="bg-accent text-white rounded-lg px-5 py-3 font-semibold text-sm"
+          >
+            {t.vehicles.addVehicle}
+          </button>
         </div>
 
         {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-        {loading && <p className="text-sm text-slate">Načítavam...</p>}
 
+        {loading ? (
+          <Spinner />
+        ) : (
         <div className="flex flex-col gap-4">
           {(vehicles ?? []).map((v) => {
             const next = nextStk(v.lastStk, v.stkIntervalYears)
@@ -194,7 +206,7 @@ export default function Vehicles() {
             )
           })}
 
-          {adding ? (
+          {adding && (
             <form onSubmit={submitNewVehicle} className="bg-white rounded-2xl shadow-sm p-5 flex items-end gap-3">
               <div className="flex-1">
                 <label className="text-sm font-medium text-slate block mb-1.5">Názov vozidla</label>
@@ -203,6 +215,7 @@ export default function Vehicles() {
                   onChange={(e) => setNewVehicle((n) => ({ ...n, name: e.target.value }))}
                   placeholder="napr. Dodávka Fiat Ducato"
                   required
+                  autoFocus
                   className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm"
                 />
               </div>
@@ -223,16 +236,9 @@ export default function Vehicles() {
                 Zrušiť
               </button>
             </form>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setAdding(true)}
-              className="self-start border-2 border-dashed border-gray-300 rounded-lg px-5 py-3 text-sm font-semibold text-slate"
-            >
-              {t.vehicles.addVehicle}
-            </button>
           )}
         </div>
+        )}
       </div>
     </div>
   )
