@@ -20,7 +20,12 @@ export default function Reveal({ children, className = '', delay = 0, immediate 
     const el = ref.current
     if (!el) return
     const observer = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true)
+          observer.disconnect()
+        }
+      },
       { threshold: 0.2, rootMargin: '0px 0px -120px 0px' }
     )
     observer.observe(el)
