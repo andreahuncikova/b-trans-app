@@ -66,7 +66,6 @@ export const t = {
     totalDays: 'Odpracované dni spolu',
     hours: 'Odjazdené hodiny',
     delivered: 'Doručené zákazky',
-    byDriver: 'Podľa vodiča',
     driver: 'Vodič',
     workedDays: 'Odpracované dni',
     hoursLabel: 'Hodiny',

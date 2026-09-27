@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar.tsx'
 import { t } from '../i18n.ts'
 import { useAuth } from '../AuthContext.tsx'
@@ -234,28 +235,19 @@ export default function Overview() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm flex flex-col flex-1 min-h-[180px]">
-          <div className="px-5 py-4 border-b border-gray-100 font-semibold text-sm shrink-0">{t.overview.byDriver}</div>
-          <div className="grid grid-cols-4 px-5 py-2.5 text-xs text-gray-400 font-semibold uppercase shrink-0">
-            <div>{t.overview.driver}</div><div>{t.overview.workedDays}</div><div>{t.overview.hoursLabel}</div><div>{t.overview.stopsLabel}</div>
-          </div>
-          <div className="overflow-y-auto flex-1">
-            {reportRows.map((r) => (
-              <div key={r.driver._id} className="grid grid-cols-4 px-5 py-4 items-center border-t border-gray-100 text-sm">
-                <span className="font-medium">{r.driver.name}</span>
-                <div className="text-slate">{r.days}</div>
-                <div className="text-slate">{r.hours || 0}</div>
-                <div className="text-slate">{r.stops}</div>
-              </div>
-            ))}
-            {reportRows.length === 0 && !loading && (
-              <div className="px-5 py-4 text-sm text-slate">{t.overview.noStops}</div>
-            )}
-          </div>
-        </div>
-
         <p className="text-xs text-gray-400 mt-4 shrink-0">{t.overview.note}</p>
       </div>
+
+      <Link
+        to="/zastavky"
+        title={t.nav.logStops}
+        aria-label={t.nav.logStops}
+        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-accent text-white shadow-lg flex items-center justify-center hover:bg-accent/90 transition-colors"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+      </Link>
     </div>
   )
 }
