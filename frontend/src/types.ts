@@ -1,0 +1,59 @@
+export interface User {
+  id: string
+  name: string
+  email: string
+  role: 'admin' | 'driver'
+  driver: string | null
+}
+
+export interface Driver {
+  _id: string
+  name: string
+  role: string
+  type: 'permanent' | 'substitute'
+  status: 'active' | 'inactive'
+  createdAt: string
+  updatedAt: string
+}
+
+export interface Vehicle {
+  _id: string
+  name: string
+  plate: string
+  driver: { _id: string; name: string } | null
+  lastStk: string | null
+  stkIntervalYears: 1 | 2
+  inService: boolean
+  serviceReason: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LogStopEntry {
+  _id: string
+  driver: string
+  date: string
+  stops: number
+  hours: number | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ReportRow {
+  driver: { _id: string; name: string }
+  days: number
+  stops: number
+  hours: number
+}
+
+export interface ReportData {
+  rows: ReportRow[]
+  totals: { days: number; stops: number; hours: number }
+}
+
+export interface Applicant {
+  _id: string
+  name: string
+  phone: string
+  email: string
+}

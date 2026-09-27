@@ -1,0 +1,43 @@
+import 'dotenv/config'
+import express from 'express'
+import type { NextFunction, Request, Response } from 'express'
+import cors from 'cors'
+import { connectDB } from './db.js'
+import authRoutes from './routes/auth.js'
+import driverRoutes from './routes/drivers.js'
+import vehicleRoutes from './routes/vehicles.js'
+import logStopRoutes from './routes/logstops.js'
+import reportRoutes from './routes/report.js'
+import applicantRoutes from './routes/applicants.js'
+
+const app = express()
+
+app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }))
+app.use(express.json())
+
+app.get('/api/health', (_req: Request, res: Response) => res.json({ ok: true }))
+
+app.use('/api/auth', authRoutes)
+app.use('/api/drivers', driverRoutes)
+app.use('/api/vehicles', vehicleRoutes)
+app.use('/api/logstops', logStopRoutes)
+app.use('/api/report', reportRoutes)
+app.use('/api/applicants', applicantRoutes)
+
+app.use((_req: Request, res: Response) => res.status(404).json({ error: 'Not found' }))
+
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' })
+})
+
+const port = process.env.PORT || 4000
+
+connectDB()
+  .then(() => {
+    app.listen(port, () => console.log(`API listening on http://localhost:${port}`))
+  })
+  .catch((err) => {
+    console.error('Failed to connect to MongoDB', err)
+    process.exit(1)
+  })

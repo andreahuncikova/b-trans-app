@@ -1,0 +1,11 @@
+import { Router } from 'express'
+import { requireAuth, requireAdmin } from '../middleware/auth.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { createApplicant, listApplicants } from '../controllers/applicantsController.js'
+
+const router = Router()
+
+router.post('/', asyncHandler(createApplicant))
+router.get('/', requireAuth, requireAdmin, asyncHandler(listApplicants))
+
+export default router
