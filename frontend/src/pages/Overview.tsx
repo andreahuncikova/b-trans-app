@@ -109,8 +109,8 @@ export default function Overview() {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-9 flex flex-col overflow-y-auto">
-        <div className="flex items-start justify-between mb-5 shrink-0">
+      <div className="flex-1 p-8 flex flex-col overflow-y-auto">
+        <div className="flex items-start justify-between mb-4 shrink-0">
           <div>
             <h1 className="text-2xl font-bold">{t.overview.title}</h1>
             <p className="text-slate text-sm mt-1">{t.overview.subtitle}</p>
@@ -165,7 +165,7 @@ export default function Overview() {
         {error && <p className="text-sm text-red-600 mb-4 shrink-0">{error}</p>}
         {loading && <p className="text-sm text-slate mb-4 shrink-0">Načítavam...</p>}
 
-        <div className="flex gap-4 mb-6 shrink-0">
+        <div className="flex gap-4 mb-5 shrink-0">
           <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
             <div className="text-slate text-sm font-medium">{t.overview.totalDays}</div>
             <div className="font-display text-3xl font-bold mt-1.5">{totals.days}</div>
@@ -180,7 +180,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <div className="flex gap-5 mb-6 shrink-0">
+        <div className="flex gap-5 mb-5 shrink-0">
           <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
             <div className="grid grid-cols-7 gap-2 mb-2 text-xs font-semibold text-slate text-center">
               {t.overview.weekdayLabels.map((d) => <div key={d}>{d}</div>)}
@@ -235,7 +235,7 @@ export default function Overview() {
           </div>
         </div>
 
-        <p className="text-xs text-gray-400 mt-4 shrink-0">{t.overview.note}</p>
+        <p className="text-xs text-gray-400 mt-3 shrink-0">{t.overview.note}</p>
       </div>
 
       <Link

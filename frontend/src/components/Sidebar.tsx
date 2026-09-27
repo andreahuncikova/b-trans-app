@@ -29,7 +29,7 @@ export default function Sidebar() {
   ]
 
   return (
-    <div className="w-60 shrink-0 bg-ink text-platinum flex flex-col gap-8 p-5">
+    <div className="w-60 shrink-0 sticky top-0 h-screen overflow-y-auto bg-ink text-platinum flex flex-col gap-8 p-5">
       <Link to="/">
         <Logo variant="light" />
       </Link>
