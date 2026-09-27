@@ -158,24 +158,26 @@ export default function Overview() {
             <div className="bg-white rounded-2xl shadow-sm p-5">
               <div className="text-xs font-semibold text-accent">{t.overview.selectedDate}</div>
               <div className="font-display text-lg font-bold mt-1">{formatSelectedDate(year, month, selectedDay)}</div>
-              <div className="text-sm text-slate mt-0.5">
-                {selectedDayInfo?.total ?? 0} {t.logStops.stops}
-              </div>
-              <div className="mt-3 flex flex-col gap-2 text-sm">
-                {selectedDayDrivers.length > 0 ? (
-                  selectedDayDrivers.map((d) => (
-                    <div key={d.name} className="flex justify-between">
-                      <span className="text-slate">{d.name}</span>
-                      <span className="font-semibold">{d.stops}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-400">{t.overview.noStops}</p>
-                )}
-              </div>
+              {selectedDayDrivers.length > 0 ? (
+                <>
+                  <div className="text-sm text-slate mt-0.5">
+                    {selectedDayInfo?.total} {t.logStops.stops}
+                  </div>
+                  <div className="mt-3 flex flex-col gap-2 text-sm">
+                    {selectedDayDrivers.map((d) => (
+                      <div key={d.name} className="flex justify-between">
+                        <span className="text-slate">{d.name}</span>
+                        <span className="font-semibold">{d.stops}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-gray-400 mt-3">{t.overview.noStops}</p>
+              )}
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm p-5">
+            <div className="bg-white rounded-2xl shadow-sm p-5 flex-1">
               <div className="font-semibold text-sm mb-3">{t.overview.byDriver}</div>
               {monthlyByDriver.map((r) => (
                 <div key={r.name} className="mb-3">
