@@ -9,11 +9,30 @@ import logStopRoutes from './routes/logstops.js'
 import reportRoutes from './routes/report.js'
 import applicantRoutes from './routes/applicants.js'
 
+const DEV_ORIGINS = ['http://localhost:5173', 'http://localhost:5174']
+
 export function createApp() {
   const app = express()
 
+  const configuredOrigins = (process.env.CLIENT_ORIGIN ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+  const allowedOrigins = [...new Set([...configuredOrigins, ...DEV_ORIGINS])]
+
   app.use(helmet())
-  app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }))
+  app.use(
+    cors({
+      origin(origin, callback) {
+        // requests with no Origin header (curl, server-to-server, the health check) are always allowed
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      },
+    })
+  )
   app.use(express.json())
 
   app.get('/api/health', (_req: Request, res: Response) => res.json({ ok: true }))
