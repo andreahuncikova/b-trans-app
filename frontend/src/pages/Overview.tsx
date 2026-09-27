@@ -1,11 +1,17 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Sidebar from '../components/Sidebar.tsx'
 import { t } from '../i18n.ts'
 import { useAuth } from '../AuthContext.tsx'
 import { useFetch } from '../hooks/useFetch.ts'
 import { api } from '../api.ts'
-import { MONTH_NAMES } from '../dateUtils.ts'
+import { MONTH_NAMES, monthOptions } from '../dateUtils.ts'
 import type { LogStopEntry } from '../types.ts'
+
+interface MonthOption {
+  year: number
+  month: number
+  label: string
+}
 
 type EntryWithDriver = LogStopEntry & { driver: NonNullable<LogStopEntry['driver']> }
 
@@ -38,12 +44,20 @@ function heat(stops: number) {
 export default function Overview() {
   const { token } = useAuth()
   const now = useMemo(() => new Date(), [])
-  const year = now.getFullYear()
-  const month = now.getMonth() + 1
+  const months = useMemo<MonthOption[]>(() => monthOptions(), [])
+  const [selected, setSelected] = useState<MonthOption>(months[0])
+  const { year, month } = selected
   const today = now.getDate()
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1
 
   const [selectedDriverId, setSelectedDriverId] = useState('')
-  const [selectedDay, setSelectedDay] = useState(today)
+  const [selectedDay, setSelectedDay] = useState(isCurrentMonth ? today : 1)
+
+  useEffect(() => {
+    setSelectedDay(isCurrentMonth ? today : 1)
+    // only reset when the chosen month changes, not on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [year, month])
 
   const { data: driversData } = useFetch(() => api.getDrivers(token!), [token])
   const drivers = driversData ?? []
@@ -54,6 +68,10 @@ export default function Overview() {
   )
   const entries = (entriesData ?? []).filter(hasDriver)
   const filteredEntries = selectedDriverId ? entries.filter((e) => e.driver._id === selectedDriverId) : entries
+
+  const { data: reportData } = useFetch(() => api.getReport(year, month, token!), [token, year, month])
+  const reportRows = (reportData?.rows ?? []).filter((r) => !selectedDriverId || r.driver._id === selectedDriverId)
+  const totals = reportData?.totals ?? { days: 0, stops: 0, hours: 0 }
 
   const calendarDays = buildCalendarDays(year, month)
 
@@ -71,41 +89,44 @@ export default function Overview() {
     return map
   }, [filteredEntries])
 
-  const monthlyByDriver = useMemo(() => {
-    const totals = new Map<string, { name: string; stops: number }>()
-    for (const entry of entries) {
-      const existing = totals.get(entry.driver._id) ?? { name: entry.driver.name, stops: 0 }
-      existing.stops += entry.stops
-      totals.set(entry.driver._id, existing)
-    }
-    return [...totals.values()].sort((a, b) => b.stops - a.stops)
-  }, [entries])
-  const maxMonthlyStops = monthlyByDriver[0]?.stops ?? 0
-
   const selectedDayInfo = byDay.get(selectedDay)
   const selectedDayDrivers = selectedDayInfo ? [...selectedDayInfo.byDriver.values()].sort((a, b) => b.stops - a.stops) : []
 
+  const exportCsv = () => {
+    const header = [t.overview.driver, t.overview.workedDays, t.overview.hoursLabel, t.overview.stopsLabel]
+    const lines = reportRows.map((r) => [r.driver.name, r.days, r.hours || 0, r.stops].join(';'))
+    const csv = [header.join(';'), ...lines].join('\n')
+    const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `report-${year}-${String(month).padStart(2, '0')}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <div className="flex-1 p-9">
-        <div className="flex items-start justify-between mb-5">
+      <div className="flex-1 p-9 flex flex-col overflow-hidden">
+        <div className="flex items-start justify-between mb-5 shrink-0">
           <div>
             <h1 className="text-2xl font-bold">{t.overview.title}</h1>
             <p className="text-slate text-sm mt-1">{t.overview.subtitle}</p>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="flex bg-white border border-gray-300 rounded-lg p-1 text-sm">
-              <button type="button" disabled title={t.overview.comingSoon} className="px-3 py-1.5 text-slate/40 cursor-not-allowed">
-                {t.overview.week}
-              </button>
-              <button type="button" className="px-3 py-1.5 bg-accent text-white rounded-md font-semibold">
-                {t.overview.month}
-              </button>
-              <button type="button" disabled title={t.overview.comingSoon} className="px-3 py-1.5 text-slate/40 cursor-not-allowed">
-                {t.overview.year}
-              </button>
-            </div>
+            <select
+              value={`${selected.year}-${selected.month}`}
+              onChange={(e) => {
+                const m = months.find((o) => `${o.year}-${o.month}` === e.target.value)
+                if (m) setSelected(m)
+              }}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+            >
+              {months.map((m) => (
+                <option key={`${m.year}-${m.month}`} value={`${m.year}-${m.month}`}>{m.label}</option>
+              ))}
+            </select>
             <select
               value={selectedDriverId}
               onChange={(e) => setSelectedDriverId(e.target.value)}
@@ -116,13 +137,36 @@ export default function Overview() {
                 <option key={d._id} value={d._id}>{d.name}</option>
               ))}
             </select>
+            <button
+              type="button"
+              onClick={exportCsv}
+              disabled={reportRows.length === 0}
+              className="border border-gray-300 rounded-lg px-3.5 py-2 text-sm font-semibold bg-white disabled:opacity-50"
+            >
+              {t.overview.export}
+            </button>
           </div>
         </div>
 
-        {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-        {loading && <p className="text-sm text-slate mb-4">Načítavam...</p>}
+        {error && <p className="text-sm text-red-600 mb-4 shrink-0">{error}</p>}
+        {loading && <p className="text-sm text-slate mb-4 shrink-0">Načítavam...</p>}
 
-        <div className="flex gap-5">
+        <div className="flex gap-4 mb-6 shrink-0">
+          <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
+            <div className="text-slate text-sm font-medium">{t.overview.totalDays}</div>
+            <div className="font-display text-3xl font-bold mt-1.5">{totals.days}</div>
+          </div>
+          <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
+            <div className="text-slate text-sm font-medium">{t.overview.hours}</div>
+            <div className="font-display text-3xl font-bold mt-1.5">{totals.hours || 0}</div>
+          </div>
+          <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
+            <div className="text-slate text-sm font-medium">{t.overview.delivered}</div>
+            <div className="font-display text-3xl font-bold mt-1.5 text-accent">{totals.stops}</div>
+          </div>
+        </div>
+
+        <div className="flex gap-5 mb-6 shrink-0">
           <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
             <div className="grid grid-cols-7 gap-2 mb-2 text-xs font-semibold text-slate text-center">
               {t.overview.weekdayLabels.map((d) => <div key={d}>{d}</div>)}
@@ -130,7 +174,7 @@ export default function Overview() {
             <div className="grid grid-cols-7 gap-2">
               {calendarDays.map((day, i) => {
                 const info = day ? byDay.get(day) : undefined
-                const isToday = day === today
+                const isToday = isCurrentMonth && day === today
                 const isSelected = day === selectedDay
                 return (
                   <button
@@ -154,49 +198,50 @@ export default function Overview() {
             </div>
           </div>
 
-          <div className="w-72 shrink-0 flex flex-col gap-4">
-            <div className="bg-white rounded-2xl shadow-sm p-5">
-              <div className="text-xs font-semibold text-accent">{t.overview.selectedDate}</div>
-              <div className="font-display text-lg font-bold mt-1">{formatSelectedDate(year, month, selectedDay)}</div>
-              {selectedDayDrivers.length > 0 ? (
-                <>
-                  <div className="text-sm text-slate mt-0.5">
-                    {selectedDayInfo?.total} {t.logStops.stops}
-                  </div>
-                  <div className="mt-3 flex flex-col gap-2 text-sm">
-                    {selectedDayDrivers.map((d) => (
-                      <div key={d.name} className="flex justify-between">
-                        <span className="text-slate">{d.name}</span>
-                        <span className="font-semibold">{d.stops}</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <p className="text-sm text-gray-400 mt-3">{t.overview.noStops}</p>
-              )}
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm p-5 flex-1">
-              <div className="font-semibold text-sm mb-3">{t.overview.byDriver}</div>
-              {monthlyByDriver.map((r) => (
-                <div key={r.name} className="mb-3">
-                  <div className="flex justify-between text-sm mb-1.5">
-                    <span className="text-slate font-medium">{r.name}</span>
-                    <span className="font-bold">{r.stops}</span>
-                  </div>
-                  <div className="h-2 rounded bg-gray-200">
-                    <div
-                      className="h-2 rounded bg-accent"
-                      style={{ width: `${maxMonthlyStops > 0 ? (r.stops / maxMonthlyStops) * 100 : 0}%` }}
-                    />
-                  </div>
+          <div className="w-72 shrink-0 bg-white rounded-2xl shadow-sm p-5">
+            <div className="text-xs font-semibold text-accent">{t.overview.selectedDate}</div>
+            <div className="font-display text-lg font-bold mt-1">{formatSelectedDate(year, month, selectedDay)}</div>
+            {selectedDayDrivers.length > 0 ? (
+              <>
+                <div className="text-sm text-slate mt-0.5">
+                  {selectedDayInfo?.total} {t.logStops.stops}
                 </div>
-              ))}
-              {monthlyByDriver.length === 0 && <p className="text-sm text-gray-400">{t.overview.noStops}</p>}
-            </div>
+                <div className="mt-3 flex flex-col gap-2 text-sm">
+                  {selectedDayDrivers.map((d) => (
+                    <div key={d.name} className="flex justify-between">
+                      <span className="text-slate">{d.name}</span>
+                      <span className="font-semibold">{d.stops}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-gray-400 mt-3">{t.overview.noStops}</p>
+            )}
           </div>
         </div>
+
+        <div className="bg-white rounded-2xl shadow-sm flex flex-col flex-1 min-h-0">
+          <div className="px-5 py-4 border-b border-gray-100 font-semibold text-sm shrink-0">{t.overview.byDriver}</div>
+          <div className="grid grid-cols-4 px-5 py-2.5 text-xs text-gray-400 font-semibold uppercase shrink-0">
+            <div>{t.overview.driver}</div><div>{t.overview.workedDays}</div><div>{t.overview.hoursLabel}</div><div>{t.overview.stopsLabel}</div>
+          </div>
+          <div className="overflow-y-auto flex-1">
+            {reportRows.map((r) => (
+              <div key={r.driver._id} className="grid grid-cols-4 px-5 py-4 items-center border-t border-gray-100 text-sm">
+                <span className="font-medium">{r.driver.name}</span>
+                <div className="text-slate">{r.days}</div>
+                <div className="text-slate">{r.hours || 0}</div>
+                <div className="text-slate">{r.stops}</div>
+              </div>
+            ))}
+            {reportRows.length === 0 && !loading && (
+              <div className="px-5 py-4 text-sm text-slate">{t.overview.noStops}</div>
+            )}
+          </div>
+        </div>
+
+        <p className="text-xs text-gray-400 mt-4 shrink-0">{t.overview.note}</p>
       </div>
     </div>
   )

@@ -24,7 +24,6 @@ export default function Sidebar() {
   const links = [
     { to: '/prehlad', label: t.nav.overview },
     { to: '/zastavky', label: t.nav.logStops },
-    { to: '/report', label: t.nav.report },
     { to: '/vodici', label: t.nav.drivers },
     { to: '/vozidla', label: t.nav.vehicles },
   ]
