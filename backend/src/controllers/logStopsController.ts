@@ -15,7 +15,7 @@ export async function listLogStops(req: Request, res: Response) {
     const { start, end } = monthRange(Number(year), Number(month))
     filter.date = { $gte: start, $lt: end }
   }
-  const entries = await LogStop.find(filter).sort({ date: 1 })
+  const entries = await LogStop.find(filter).populate('driver', 'name').sort({ date: 1 })
   res.json(entries)
 }
 

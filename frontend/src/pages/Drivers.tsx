@@ -31,10 +31,31 @@ export default function Drivers() {
     e.preventDefault()
     if (!name || !addingType) return
     try {
-      const created = await api.addDriver({ name, type: addingType, role: t.drivers.role }, token!)
+      const created = await api.addDriver({ name, type: addingType }, token!)
       setDrivers((ds) => (ds ? [...ds, created] : [created]))
       setName('')
       setAddingType(null)
+    } catch (err) {
+      setError((err as Error).message)
+    }
+  }
+
+  const toggleStatus = async (id: string, status: Driver['status']) => {
+    const nextStatus = status === 'active' ? 'inactive' : 'active'
+    setDrivers((ds) => (ds ? ds.map((d) => (d._id === id ? { ...d, status: nextStatus } : d)) : ds))
+    try {
+      await api.updateDriver(id, { status: nextStatus }, token!)
+    } catch (err) {
+      setError((err as Error).message)
+      setDrivers((ds) => (ds ? ds.map((d) => (d._id === id ? { ...d, status } : d)) : ds))
+    }
+  }
+
+  const removeDriver = async (id: string, name: string) => {
+    if (!window.confirm(`Naozaj vymazať vodiča „${name}“?`)) return
+    try {
+      await api.deleteDriver(id, token!)
+      setDrivers((ds) => (ds ? ds.filter((d) => d._id !== id) : ds))
     } catch (err) {
       setError((err as Error).message)
     }
@@ -90,8 +111,26 @@ export default function Drivers() {
                 <div className="font-semibold text-sm">{p.name}</div>
                 <div className="text-sm text-slate">{p.role || t.drivers.role}</div>
               </div>
-              <span className="bg-green-50 text-green-600 text-xs font-semibold px-2.5 py-1 rounded-full">{t.drivers.active}</span>
-              <a href="#" className="text-sm font-semibold text-accent">{t.drivers.detail}</a>
+              <button
+                type="button"
+                onClick={() => toggleStatus(p._id, p.status)}
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                  p.status === 'active' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
+                {p.status === 'active' ? t.drivers.active : t.drivers.inactive}
+              </button>
+              <button
+                type="button"
+                onClick={() => removeDriver(p._id, p.name)}
+                title="Vymazať vodiča"
+                aria-label="Vymazať vodiča"
+                className="text-gray-300 hover:text-red-500 shrink-0"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                </svg>
+              </button>
             </div>
           ))}
           {addingType === 'permanent' && (
@@ -116,7 +155,26 @@ export default function Drivers() {
                 <div className="text-sm text-slate">{s.role || t.drivers.substituteRole}</div>
               </div>
               <span className="bg-accent-light text-accent text-xs font-semibold px-2.5 py-1 rounded-full">{t.drivers.substituteTag}</span>
-              <a href="#" className="text-sm font-semibold text-accent">{t.drivers.detail}</a>
+              <button
+                type="button"
+                onClick={() => toggleStatus(s._id, s.status)}
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                  s.status === 'active' ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'
+                }`}
+              >
+                {s.status === 'active' ? t.drivers.active : t.drivers.inactive}
+              </button>
+              <button
+                type="button"
+                onClick={() => removeDriver(s._id, s.name)}
+                title="Vymazať vodiča"
+                aria-label="Vymazať vodiča"
+                className="text-gray-300 hover:text-red-500 shrink-0"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                </svg>
+              </button>
             </div>
           ))}
           {addingType === 'substitute' ? (

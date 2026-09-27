@@ -33,6 +33,19 @@ export default function Report() {
   const rows = data?.rows ?? []
   const totals = data?.totals ?? { days: 0, stops: 0, hours: 0 }
 
+  const exportCsv = () => {
+    const header = [t.report.driver, t.report.workedDays, t.report.hoursLabel, t.report.stopsLabel]
+    const lines = rows.map((r) => [r.driver.name, r.days, r.hours || 0, r.stops].join(';'))
+    const csv = [header.join(';'), ...lines].join('\n')
+    const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `report-${selected.year}-${String(selected.month).padStart(2, '0')}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -55,6 +68,14 @@ export default function Report() {
                 <option key={`${m.year}-${m.month}`} value={`${m.year}-${m.month}`}>{m.label}</option>
               ))}
             </select>
+            <button
+              type="button"
+              onClick={exportCsv}
+              disabled={rows.length === 0}
+              className="border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm font-semibold bg-white disabled:opacity-50"
+            >
+              {t.report.export}
+            </button>
           </div>
         </div>
 
@@ -78,11 +99,11 @@ export default function Report() {
 
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100 font-semibold text-sm">{t.report.byDriver}</div>
-          <div className="grid grid-cols-5 px-5 py-2.5 text-xs text-gray-400 font-semibold uppercase">
-            <div>{t.report.driver}</div><div>{t.report.workedDays}</div><div>{t.report.hoursLabel}</div><div>{t.report.stopsLabel}</div><div></div>
+          <div className="grid grid-cols-4 px-5 py-2.5 text-xs text-gray-400 font-semibold uppercase">
+            <div>{t.report.driver}</div><div>{t.report.workedDays}</div><div>{t.report.hoursLabel}</div><div>{t.report.stopsLabel}</div>
           </div>
           {rows.map((r) => (
-            <div key={r.driver._id} className="grid grid-cols-5 px-5 py-4 items-center border-t border-gray-100 text-sm">
+            <div key={r.driver._id} className="grid grid-cols-4 px-5 py-4 items-center border-t border-gray-100 text-sm">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-full bg-ink text-platinum flex items-center justify-center text-xs font-semibold">
                   {initials(r.driver.name)}
@@ -92,7 +113,6 @@ export default function Report() {
               <div className="text-slate">{r.days}</div>
               <div className="text-slate">{r.hours || 0}</div>
               <div className="text-slate">{r.stops}</div>
-              <div><a href="#" className="text-accent font-semibold">{t.report.detail}</a></div>
             </div>
           ))}
           {rows.length === 0 && !loading && (

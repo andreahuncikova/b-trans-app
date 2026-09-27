@@ -64,8 +64,9 @@ export const t = {
     year: 'Rok',
     allEmployees: 'Všetci zamestnanci',
     weekdayLabels: ['Po', 'Ut', 'St', 'Št', 'Pi', 'So', 'Ne'],
-    selectedDate: 'Streda, 15. september',
-    stopsText: '3 zastávky',
+    selectedDate: 'Vybraný deň',
+    noStops: 'Zatiaľ žiadne zastávky',
+    comingSoon: 'Čoskoro dostupné',
     byDriver: 'Zastávky podľa vodiča',
   },
   logStops: {
@@ -87,7 +88,7 @@ export const t = {
     permanentTitle: 'Zamestnanci — stáli vodiči',
     substituteTitle: 'Vodiči na zástup',
     active: 'Aktívny',
-    detail: 'Detail',
+    inactive: 'Neaktívny',
     substituteTag: 'Na zástupe',
     addSubstitute: '+ Pridať vodiča na zástup',
     role: 'Dodávka · zamestnanec',
@@ -124,7 +125,6 @@ export const t = {
     workedDays: 'Odpracované dni',
     hoursLabel: 'Hodiny',
     stopsLabel: 'Doručené zákazky',
-    detail: 'Detail',
     note: 'Report je len prehľadový výstup pre internú potrebu — nenahrádza mzdové spracovanie.',
   },
 }

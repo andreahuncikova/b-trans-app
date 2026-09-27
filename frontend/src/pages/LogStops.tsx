@@ -47,6 +47,7 @@ export default function LogStops() {
   const [driverId, setDriverId] = useState('')
   const [selected, setSelected] = useState<MonthOption>(months[0])
   const [values, setValues] = useState<Record<number, number | undefined>>({})
+  const [entryIds, setEntryIds] = useState<Record<number, string>>({})
   const [saving, setSaving] = useState(false)
   const [savedMsg, setSavedMsg] = useState('')
 
@@ -65,10 +66,14 @@ export default function LogStops() {
   useEffect(() => {
     setSavedMsg('')
     const byDay: Record<number, number | undefined> = {}
+    const idsByDay: Record<number, string> = {}
     ;(entries ?? []).forEach((e) => {
-      byDay[new Date(e.date).getDate()] = e.stops
+      const day = new Date(e.date).getDate()
+      byDay[day] = e.stops
+      idsByDay[day] = e._id
     })
     setValues(byDay)
+    setEntryIds(idsByDay)
   }, [entries])
 
   const days = buildDays(selected.year, selected.month)
@@ -83,13 +88,20 @@ export default function LogStops() {
     setError('')
     setSavedMsg('')
     try {
-      const entries = Object.entries(values).filter(([, v]) => v !== undefined)
-      await Promise.all(
-        entries.map(([day, stops]) => {
+      const toSave = Object.entries(values).filter(([, v]) => v !== undefined)
+      const toDelete = Object.entries(entryIds).filter(([day]) => values[Number(day)] === undefined)
+      await Promise.all([
+        ...toSave.map(([day, stops]) => {
           const date = `${selected.year}-${String(selected.month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
           return api.saveLogStop({ driver: driverId, date, stops: stops as number }, token!)
-        })
-      )
+        }),
+        ...toDelete.map(([, id]) => api.deleteLogStop(id, token!)),
+      ])
+      setEntryIds((ids) => {
+        const next = { ...ids }
+        toDelete.forEach(([day]) => delete next[Number(day)])
+        return next
+      })
       setSavedMsg('Uložené.')
     } catch (err) {
       setError((err as Error).message)

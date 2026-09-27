@@ -31,7 +31,7 @@ export interface Vehicle {
 
 export interface LogStopEntry {
   _id: string
-  driver: string
+  driver: { _id: string; name: string } | null
   date: string
   stops: number
   hours: number | null

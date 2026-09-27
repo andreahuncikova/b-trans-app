@@ -35,6 +35,16 @@ interface AuthResponse {
   user: User
 }
 
+export interface VehiclePatch {
+  name?: string
+  plate?: string
+  driver?: string | null
+  lastStk?: string | null
+  stkIntervalYears?: 1 | 2
+  inService?: boolean
+  serviceReason?: string
+}
+
 export const api = {
   login: (email: string, password: string) =>
     request<AuthResponse>('/auth/login', { method: 'POST', body: { email, password } }),
@@ -53,7 +63,7 @@ export const api = {
   getVehicles: (token: string) => request<Vehicle[]>('/vehicles', { token }),
   addVehicle: (vehicle: Partial<Vehicle>, token: string) =>
     request<Vehicle>('/vehicles', { method: 'POST', body: vehicle, token }),
-  updateVehicle: (id: string, patch: Partial<Vehicle>, token: string) =>
+  updateVehicle: (id: string, patch: VehiclePatch, token: string) =>
     request<Vehicle>(`/vehicles/${id}`, { method: 'PATCH', body: patch, token }),
   deleteVehicle: (id: string, token: string) => request<null>(`/vehicles/${id}`, { method: 'DELETE', token }),
 
@@ -61,6 +71,7 @@ export const api = {
     request<LogStopEntry[]>(`/logstops?${new URLSearchParams(params)}`, { token }),
   saveLogStop: (entry: { driver: string; date: string; stops: number; hours?: number | null }, token: string) =>
     request<LogStopEntry>('/logstops', { method: 'PUT', body: entry, token }),
+  deleteLogStop: (id: string, token: string) => request<null>(`/logstops/${id}`, { method: 'DELETE', token }),
 
   getReport: (year: number, month: number, token: string) =>
     request<ReportData>(`/report?year=${year}&month=${month}`, { token }),

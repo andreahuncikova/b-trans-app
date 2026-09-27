@@ -3,8 +3,7 @@ import Sidebar from '../components/Sidebar.tsx'
 import { t } from '../i18n.ts'
 import { useAuth } from '../AuthContext.tsx'
 import { useFetch } from '../hooks/useFetch.ts'
-import { api } from '../api.ts'
-import type { Vehicle } from '../types.ts'
+import { api, type VehiclePatch } from '../api.ts'
 
 const SOON_DAYS = 30
 
@@ -21,13 +20,40 @@ export default function Vehicles() {
     () => api.getVehicles(token!),
     [token]
   )
+  const { data: driversData } = useFetch(() => api.getDrivers(token!), [token])
+  const drivers = driversData ?? []
   const [adding, setAdding] = useState(false)
   const [newVehicle, setNewVehicle] = useState({ name: '', plate: '' })
 
-  const patchVehicle = async (id: string, patch: Partial<Vehicle>) => {
-    setVehicles((vs) => (vs ? vs.map((v) => (v._id === id ? { ...v, ...patch } : v)) : vs))
+  const patchVehicle = async (id: string, patch: VehiclePatch) => {
+    const previous = (vehicles ?? []).find((v) => v._id === id)
+    setVehicles((vs) =>
+      vs
+        ? vs.map((v) => {
+            if (v._id !== id) return v
+            const driver =
+              patch.driver !== undefined
+                ? patch.driver
+                  ? drivers.find((d) => d._id === patch.driver) ?? v.driver
+                  : null
+                : v.driver
+            return { ...v, ...patch, driver }
+          })
+        : vs
+    )
     try {
       await api.updateVehicle(id, patch, token!)
+    } catch (err) {
+      setError((err as Error).message)
+      if (previous) setVehicles((vs) => (vs ? vs.map((v) => (v._id === id ? previous : v)) : vs))
+    }
+  }
+
+  const deleteVehicle = async (id: string, name: string) => {
+    if (!window.confirm(`Naozaj vymazať vozidlo „${name}“?`)) return
+    try {
+      await api.deleteVehicle(id, token!)
+      setVehicles((vs) => (vs ? vs.filter((v) => v._id !== id) : vs))
     } catch (err) {
       setError((err as Error).message)
     }
@@ -94,8 +120,32 @@ export default function Vehicles() {
                   }`}>
                     {v.inService ? t.vehicles.inService : overdue ? t.vehicles.overdue : soon ? t.vehicles.soon : t.vehicles.inUse}
                   </span>
+                  <button
+                    type="button"
+                    onClick={() => deleteVehicle(v._id, v.name)}
+                    title="Vymazať vozidlo"
+                    aria-label="Vymazať vozidlo"
+                    className="text-gray-300 hover:text-red-500 shrink-0"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                    </svg>
+                  </button>
                 </div>
                 <div className="flex items-center gap-4 flex-wrap text-sm">
+                  <label className="flex items-center gap-2">
+                    <span className="text-slate">{t.vehicles.driver}</span>
+                    <select
+                      value={v.driver?._id ?? ''}
+                      onChange={(e: ChangeEvent<HTMLSelectElement>) => patchVehicle(v._id, { driver: e.target.value || null })}
+                      className="border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:border-accent"
+                    >
+                      <option value="">—</option>
+                      {drivers.map((d) => (
+                        <option key={d._id} value={d._id}>{d.name}</option>
+                      ))}
+                    </select>
+                  </label>
                   <label className="flex items-center gap-2">
                     <span className="text-slate">{t.vehicles.lastStk}</span>
                     <input
