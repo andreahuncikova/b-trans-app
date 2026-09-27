@@ -121,8 +121,8 @@ export default function LogStops() {
   return (
     <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-8 flex flex-col overflow-y-auto">
-        <div className="flex items-start justify-between mb-5 shrink-0">
+      <div className="flex-1 p-7 flex flex-col overflow-y-auto">
+        <div className="flex items-start justify-between mb-4 shrink-0">
           <div>
             <h1 className="text-2xl font-bold">{t.logStops.title}</h1>
             <p className="text-slate text-sm mt-1">{t.logStops.subtitle}</p>
@@ -163,23 +163,23 @@ export default function LogStops() {
         </div>
 
         {!driverId && !loading && (
-          <p className="text-sm text-slate mb-4 shrink-0">Najprv pridaj vodiča v sekcii Vodiči.</p>
+          <p className="text-sm text-slate mb-3 shrink-0">Najprv pridaj vodiča v sekcii Vodiči.</p>
         )}
-        {error && <p className="text-sm text-red-600 mb-4 shrink-0">{error}</p>}
+        {error && <p className="text-sm text-red-600 mb-3 shrink-0">{error}</p>}
 
-        <div className="bg-white rounded-2xl shadow-sm p-5 flex-1 min-h-0 overflow-y-auto">
+        <div className="bg-white rounded-2xl shadow-sm p-4 flex-1 min-h-0 overflow-y-auto">
           {loading ? (
             <Spinner />
           ) : (
           <>
-          <div className="grid grid-cols-7 gap-2 mb-2 text-xs font-semibold text-slate text-center">
+          <div className="grid grid-cols-7 gap-1.5 mb-1.5 text-xs font-semibold text-slate text-center">
             {WEEKDAY_LABELS.map((d) => <div key={d}>{d}</div>)}
           </div>
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1.5">
             {calendarDays.map((day, i) => (
               <div
                 key={i}
-                className={`rounded-lg p-2 h-20 flex flex-col items-center justify-center gap-1.5 ${
+                className={`rounded-lg p-1.5 h-16 flex flex-col items-center justify-center gap-1 ${
                   day ? (day.weekend ? 'bg-gray-50 opacity-50' : 'bg-[#F9F8F4]') : ''
                 } ${day?.today ? 'ring-2 ring-accent' : ''}`}
               >
@@ -201,9 +201,9 @@ export default function LogStops() {
             ))}
           </div>
 
-          <p className="text-xs text-gray-400 mt-4">{t.logStops.empty}</p>
+          <p className="text-xs text-gray-400 mt-3">{t.logStops.empty}</p>
 
-          <div className="mt-4 pt-4 flex items-center justify-between border-t border-gray-100">
+          <div className="mt-3 pt-3 flex items-center justify-between border-t border-gray-100">
             <div className="text-sm">
               <span className="text-slate">{t.logStops.total}</span>
               <span className="font-bold ml-1.5">{total} {t.logStops.stops}</span>
