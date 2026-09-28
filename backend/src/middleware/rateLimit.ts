@@ -7,3 +7,11 @@ export const authLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Príliš veľa pokusov, skúste to prosím neskôr.' },
 })
+
+export const applicantLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Príliš veľa žiadostí, skúste to prosím neskôr.' },
+})
