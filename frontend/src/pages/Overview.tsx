@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import type ExcelJS from 'exceljs'
 import Sidebar from '../components/Sidebar.tsx'
 import { t } from '../i18n.ts'
 import { useAuth } from '../AuthContext.tsx'
@@ -33,6 +34,30 @@ function formatSelectedDate(year: number, month: number, day: number) {
   const date = new Date(year, month - 1, day)
   const weekday = date.toLocaleDateString('sk-SK', { weekday: 'long' })
   return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${day}. ${MONTH_NAMES[month - 1].toLowerCase()}`
+}
+
+function styleHeaderRow(sheet: ExcelJS.Worksheet) {
+  const headerRow = sheet.getRow(1)
+  headerRow.height = 24
+  headerRow.eachCell((cell) => {
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF00A99D' } }
+    cell.alignment = { vertical: 'middle' }
+  })
+}
+
+function styleBorders(sheet: ExcelJS.Worksheet) {
+  sheet.eachRow((row, rowNumber) => {
+    row.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+        left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+        bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+        right: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+      }
+      if (rowNumber > 1) cell.alignment = { vertical: 'middle' }
+    })
+  })
 }
 
 function heat(stops: number) {
@@ -72,7 +97,10 @@ export default function Overview() {
 
   const { data: reportData } = useFetch(() => api.getReport(year, month, token!), [token, year, month])
   const reportRows = (reportData?.rows ?? []).filter((r) => !selectedDriverId || r.driver._id === selectedDriverId)
-  const totals = reportData?.totals ?? { days: 0, stops: 0, hours: 0 }
+  const totals = reportRows.reduce(
+    (acc, r) => ({ days: acc.days + r.days, stops: acc.stops + r.stops }),
+    { days: 0, stops: 0 }
+  )
 
   const calendarDays = buildCalendarDays(year, month)
 
@@ -93,15 +121,46 @@ export default function Overview() {
   const selectedDayInfo = byDay.get(selectedDay)
   const selectedDayDrivers = selectedDayInfo ? [...selectedDayInfo.byDriver.values()].sort((a, b) => b.stops - a.stops) : []
 
-  const exportCsv = () => {
-    const header = [t.overview.driver, t.overview.workedDays, t.overview.hoursLabel, t.overview.stopsLabel]
-    const lines = reportRows.map((r) => [r.driver.name, r.days, r.hours || 0, r.stops].join(';'))
-    const csv = [header.join(';'), ...lines].join('\n')
-    const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8;' })
+  const exportXlsx = async () => {
+    const { default: ExcelJSRuntime } = await import('exceljs')
+    const workbook = new ExcelJSRuntime.Workbook()
+
+    const summarySheet = workbook.addWorksheet('Súhrn')
+    summarySheet.columns = [
+      { header: t.overview.driver, key: 'driver', width: 26 },
+      { header: t.overview.workedDays, key: 'days', width: 18 },
+      { header: t.overview.stopsLabel, key: 'stops', width: 22 },
+    ]
+    styleHeaderRow(summarySheet)
+    reportRows.forEach((r) => summarySheet.addRow({ driver: r.driver.name, days: r.days, stops: r.stops }))
+    styleBorders(summarySheet)
+
+    const daySheet = workbook.addWorksheet('Dni')
+    daySheet.columns = [
+      { header: 'Dátum', key: 'date', width: 20 },
+      { header: t.overview.driver, key: 'driver', width: 26 },
+      { header: t.overview.stopsLabel, key: 'stops', width: 22 },
+    ]
+    styleHeaderRow(daySheet)
+    const sortedEntries = [...filteredEntries].sort((a, b) => {
+      const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime()
+      return dateDiff !== 0 ? dateDiff : a.driver.name.localeCompare(b.driver.name)
+    })
+    sortedEntries.forEach((e) => {
+      daySheet.addRow({
+        date: new Date(e.date).toLocaleDateString('sk-SK', { day: 'numeric', month: 'long', year: 'numeric' }),
+        driver: e.driver.name,
+        stops: e.stops,
+      })
+    })
+    styleBorders(daySheet)
+
+    const buffer = await workbook.xlsx.writeBuffer()
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `report-${year}-${String(month).padStart(2, '0')}.csv`
+    a.download = `report-${year}-${String(month).padStart(2, '0')}.xlsx`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -150,7 +209,7 @@ export default function Overview() {
             </div>
             <button
               type="button"
-              onClick={exportCsv}
+              onClick={exportXlsx}
               disabled={reportRows.length === 0}
               className="flex items-center gap-2 border border-gray-300 rounded-lg px-3.5 py-2.5 text-sm font-semibold bg-white hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50 disabled:hover:bg-white disabled:hover:border-gray-300 transition-colors"
             >
@@ -168,10 +227,6 @@ export default function Overview() {
           <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
             <div className="text-slate text-sm font-medium">{t.overview.totalDays}</div>
             <div className="font-display text-3xl font-bold mt-1.5">{totals.days}</div>
-          </div>
-          <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
-            <div className="text-slate text-sm font-medium">{t.overview.hours}</div>
-            <div className="font-display text-3xl font-bold mt-1.5">{totals.hours || 0}</div>
           </div>
           <div className="flex-1 bg-white rounded-2xl shadow-sm p-5">
             <div className="text-slate text-sm font-medium">{t.overview.delivered}</div>
