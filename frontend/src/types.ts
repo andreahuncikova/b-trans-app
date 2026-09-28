@@ -2,8 +2,7 @@ export interface User {
   id: string
   name: string
   email: string
-  role: 'admin' | 'driver'
-  driver: string | null
+  role: 'admin'
 }
 
 export interface Driver {
@@ -37,7 +36,6 @@ export interface LogStopEntry {
   driver: { _id: string; name: string } | null
   date: string
   stops: number
-  hours: number | null
   createdAt: string
   updatedAt: string
 }
@@ -46,12 +44,11 @@ export interface ReportRow {
   driver: { _id: string; name: string }
   days: number
   stops: number
-  hours: number
 }
 
 export interface ReportData {
   rows: ReportRow[]
-  totals: { days: number; stops: number; hours: number }
+  totals: { days: number; stops: number }
 }
 
 export interface Applicant {

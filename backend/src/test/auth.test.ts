@@ -51,7 +51,7 @@ describe('auth', () => {
     expect(newEmailRes.status).toBe(403)
   })
 
-  it('lets an admin token create a second (driver) account', async () => {
+  it('lets an admin token create a second admin account', async () => {
     const { body } = await request(app)
       .post('/api/auth/register')
       .send({ name: 'Admin', email: 'admin@example.com', password: 'password123' })
@@ -59,10 +59,10 @@ describe('auth', () => {
     const res = await request(app)
       .post('/api/auth/register')
       .set('Authorization', `Bearer ${body.token}`)
-      .send({ name: 'Driver One', email: 'driver@example.com', password: 'password123' })
+      .send({ name: 'Second Admin', email: 'second@example.com', password: 'password123' })
 
     expect(res.status).toBe(201)
-    expect(res.body.user.role).toBe('driver')
+    expect(res.body.user.role).toBe('admin')
   })
 
   it('requires a token for /me', async () => {

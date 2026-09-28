@@ -13,7 +13,7 @@ function signToken(user: IUser) {
 }
 
 function publicUser(user: IUser) {
-  return { id: user._id, name: user.name, email: user.email, role: user.role, driver: user.driver }
+  return { id: user._id, name: user.name, email: user.email, role: user.role }
 }
 
 export async function register(req: Request, res: Response) {
@@ -48,8 +48,7 @@ export async function register(req: Request, res: Response) {
   if (existing) return res.status(409).json({ error: 'Email je už zaregistrovaný' })
 
   const passwordHash = await bcrypt.hash(password, 10)
-  const role = userCount === 0 ? 'admin' : 'driver'
-  const user = await User.create({ name, email: email.toLowerCase(), passwordHash, role })
+  const user = await User.create({ name, email: email.toLowerCase(), passwordHash })
 
   res.status(201).json({ token: signToken(user), user: publicUser(user) })
 }

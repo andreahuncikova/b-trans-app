@@ -8,17 +8,27 @@ npm install
 npm run dev
 ```
 
+Predvolene sa pripája na backend na `http://localhost:4000/api`. Pre iné prostredie (napr. produkčný backend) nastav premennú `VITE_API_URL` (napr. v `.env.local`).
+
+## Testy
+```
+npm test
+```
+Vitest + Testing Library.
+
 ## Tech stack
-- React + Vite
+- React 19 + TypeScript
+- Vite
 - Tailwind CSS v4
 - React Router
+- ExcelJS (generovanie exportu do .xlsx, načítava sa až pri kliknutí na export)
 
 ## Stránky
 - `/` — verejná úvodná stránka
-- `/prehlad` — kalendár zastávok (domovská stránka admina)
+- `/login` — prihlásenie administrátora
+- `/prehlad` — kalendár zastávok, mesačný report a export (domovská stránka admina)
 - `/zastavky` — zapísať zastávky
-- `/report` — mesačný report
 - `/vodici` — vodiči
 - `/vozidla` — vozidlá
 
-Backend (Node/Express + MongoDB) je v `../backend` — zatiaľ s ním frontend nie je prepojený, beží na mock dátach priamo v komponentoch.
+Backend (Node/Express + MongoDB, tiež v TypeScriptu) je v `../backend`.

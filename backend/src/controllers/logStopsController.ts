@@ -20,12 +20,12 @@ export async function listLogStops(req: Request, res: Response) {
 }
 
 export async function upsertLogStop(req: Request, res: Response) {
-  const { driver, date, stops, hours } = req.body
+  const { driver, date, stops } = req.body
   if (!driver || !date) return res.status(400).json({ error: 'Vodič a dátum sú povinné' })
 
   const entry = await LogStop.findOneAndUpdate(
     { driver, date: new Date(date) },
-    { $set: { stops: stops ?? 0, hours: hours ?? null } },
+    { $set: { stops: stops ?? 0 } },
     { new: true, upsert: true, runValidators: true }
   )
   res.json(entry)

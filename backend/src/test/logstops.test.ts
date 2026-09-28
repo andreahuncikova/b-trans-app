@@ -11,22 +11,12 @@ async function registerAdmin() {
   return res.body.token as string
 }
 
-async function registerDriver(adminToken: string) {
-  const res = await request(app)
-    .post('/api/auth/register')
-    .set('Authorization', `Bearer ${adminToken}`)
-    .send({ name: 'Driver', email: 'driver@example.com', password: 'password123' })
-  return res.body.token as string
-}
-
 describe('logstops', () => {
   let adminToken: string
-  let driverToken: string
   let driverId: string
 
   beforeEach(async () => {
     adminToken = await registerAdmin()
-    driverToken = await registerDriver(adminToken)
     const createRes = await request(app)
       .post('/api/drivers')
       .set('Authorization', `Bearer ${adminToken}`)
@@ -34,13 +24,12 @@ describe('logstops', () => {
     driverId = createRes.body._id
   })
 
-  it('blocks a driver-role user from writing a log stop', async () => {
+  it('rejects unauthenticated access', async () => {
     const res = await request(app)
       .put('/api/logstops')
-      .set('Authorization', `Bearer ${driverToken}`)
       .send({ driver: driverId, date: '2026-01-05', stops: 3 })
 
-    expect(res.status).toBe(403)
+    expect(res.status).toBe(401)
   })
 
   it('lets an admin create a log stop and populates the driver name when listing', async () => {

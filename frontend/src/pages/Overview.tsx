@@ -138,21 +138,25 @@ export default function Overview() {
     const daySheet = workbook.addWorksheet('Dni')
     daySheet.columns = [
       { header: 'Dátum', key: 'date', width: 20 },
-      { header: t.overview.driver, key: 'driver', width: 26 },
-      { header: t.overview.stopsLabel, key: 'stops', width: 22 },
+      { header: t.overview.stopsLabel, key: 'stops', width: 18 },
+      { header: t.overview.driver, key: 'drivers', width: 40 },
     ]
     styleHeaderRow(daySheet)
-    const sortedEntries = [...filteredEntries].sort((a, b) => {
-      const dateDiff = new Date(a.date).getTime() - new Date(b.date).getTime()
-      return dateDiff !== 0 ? dateDiff : a.driver.name.localeCompare(b.driver.name)
-    })
-    sortedEntries.forEach((e) => {
+    const daysInMonth = new Date(year, month, 0).getDate()
+    for (let day = 1; day <= daysInMonth; day++) {
+      const info = byDay.get(day)
+      const driverBreakdown = info
+        ? [...info.byDriver.values()]
+            .sort((a, b) => b.stops - a.stops)
+            .map((d) => `${d.name}: ${d.stops}`)
+            .join(', ')
+        : ''
       daySheet.addRow({
-        date: new Date(e.date).toLocaleDateString('sk-SK', { day: 'numeric', month: 'long', year: 'numeric' }),
-        driver: e.driver.name,
-        stops: e.stops,
+        date: new Date(year, month - 1, day).toLocaleDateString('sk-SK', { day: 'numeric', month: 'long', year: 'numeric' }),
+        stops: info?.total ?? 0,
+        drivers: driverBreakdown,
       })
-    })
+    }
     styleBorders(daySheet)
 
     const buffer = await workbook.xlsx.writeBuffer()

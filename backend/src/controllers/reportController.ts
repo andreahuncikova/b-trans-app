@@ -5,7 +5,6 @@ interface ReportRow {
   driver: { _id: string; name: string }
   days: number
   stops: number
-  hours: number
 }
 
 export async function getMonthlyReport(req: Request, res: Response) {
@@ -23,7 +22,6 @@ export async function getMonthlyReport(req: Request, res: Response) {
         _id: '$driver',
         days: { $sum: 1 },
         stops: { $sum: '$stops' },
-        hours: { $sum: '$hours' },
       },
     },
     { $lookup: { from: 'drivers', localField: '_id', foreignField: '_id', as: 'driver' } },
@@ -34,7 +32,6 @@ export async function getMonthlyReport(req: Request, res: Response) {
         driver: { _id: '$driver._id', name: '$driver.name' },
         days: 1,
         stops: 1,
-        hours: 1,
       },
     },
     { $sort: { 'driver.name': 1 } },
@@ -44,9 +41,8 @@ export async function getMonthlyReport(req: Request, res: Response) {
     (acc, r) => ({
       days: acc.days + r.days,
       stops: acc.stops + r.stops,
-      hours: acc.hours + (r.hours || 0),
     }),
-    { days: 0, stops: 0, hours: 0 }
+    { days: 0, stops: 0 }
   )
 
   res.json({ rows, totals })

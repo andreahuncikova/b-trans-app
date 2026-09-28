@@ -72,7 +72,7 @@ export const api = {
 
   getLogStops: (params: Record<string, string>, token: string) =>
     request<LogStopEntry[]>(`/logstops?${new URLSearchParams(params)}`, { token }),
-  saveLogStop: (entry: { driver: string; date: string; stops: number; hours?: number | null }, token: string) =>
+  saveLogStop: (entry: { driver: string; date: string; stops: number }, token: string) =>
     request<LogStopEntry>('/logstops', { method: 'PUT', body: entry, token }),
   deleteLogStop: (id: string, token: string) => request<null>(`/logstops/${id}`, { method: 'DELETE', token }),
 

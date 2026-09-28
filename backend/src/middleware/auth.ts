@@ -4,7 +4,7 @@ import User from '../models/User.js'
 
 export interface AuthTokenPayload {
   sub: string
-  role: 'admin' | 'driver'
+  role: 'admin'
   name: string
   tokenVersion?: number
 }

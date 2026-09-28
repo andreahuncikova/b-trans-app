@@ -57,7 +57,7 @@ export default function Sidebar() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium truncate">{user?.name}</div>
-            <div className="text-xs text-platinum/55">{user?.role === 'admin' ? 'Admin' : 'Vodič'}</div>
+            <div className="text-xs text-platinum/55">{user ? 'Admin' : ''}</div>
           </div>
         </div>
         <button
