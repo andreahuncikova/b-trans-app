@@ -39,3 +39,11 @@ export function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (req.user?.role !== 'admin') return res.status(403).json({ error: 'Vyžaduje sa prístup administrátora' })
   next()
 }
+
+export function requireReminderSecret(req: Request, res: Response, next: NextFunction) {
+  const secret = req.headers['x-reminder-secret']
+  if (!process.env.REMINDER_SECRET || secret !== process.env.REMINDER_SECRET) {
+    return res.status(401).json({ error: 'Neplatný token' })
+  }
+  next()
+}

@@ -20,9 +20,12 @@ export interface Vehicle {
   _id: string
   name: string
   plate: string
+  photo: string
   driver: { _id: string; name: string } | null
   lastStk: string | null
-  stkIntervalYears: 1 | 2
+  stkIntervalYears: 1 | 2 | 4
+  vignettePurchasedAt: string | null
+  vignetteIntervalDays: 10 | 30 | 365
   inService: boolean
   serviceReason: string
   createdAt: string

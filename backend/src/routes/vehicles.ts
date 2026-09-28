@@ -1,9 +1,18 @@
 import { Router } from 'express'
-import { requireAuth, requireAdmin } from '../middleware/auth.js'
+import { requireAuth, requireAdmin, requireReminderSecret } from '../middleware/auth.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
-import { listVehicles, createVehicle, updateVehicle, deleteVehicle } from '../controllers/vehiclesController.js'
+import {
+  listVehicles,
+  createVehicle,
+  updateVehicle,
+  deleteVehicle,
+  checkReminders,
+} from '../controllers/vehiclesController.js'
 
 const router = Router()
+
+router.post('/check-reminders', requireReminderSecret, asyncHandler(checkReminders))
+
 router.use(requireAuth)
 
 router.get('/', asyncHandler(listVehicles))

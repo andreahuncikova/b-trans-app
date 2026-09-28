@@ -211,7 +211,7 @@ export default function Overview() {
             </div>
           </div>
 
-          <div className="w-72 shrink-0 bg-white rounded-2xl shadow-sm p-5">
+          <div className="w-72 shrink-0 bg-white rounded-2xl shadow-sm p-5 flex flex-col">
             <div className="text-xs font-semibold text-accent">{t.overview.selectedDate}</div>
             <div className="font-display text-lg font-bold mt-1">{formatSelectedDate(year, month, selectedDay)}</div>
             {selectedDayDrivers.length > 0 ? (
@@ -231,22 +231,20 @@ export default function Overview() {
             ) : (
               <p className="text-sm text-gray-400 mt-3">{t.overview.noStops}</p>
             )}
+
+            <div className="mt-auto pt-4 flex justify-end border-t border-gray-100">
+              <Link
+                to="/zastavky"
+                className="bg-accent text-white rounded-lg px-4 py-2.5 font-semibold text-sm hover:bg-accent/90 transition-colors"
+              >
+                + {t.nav.logStops}
+              </Link>
+            </div>
           </div>
         </div>
 
         <p className="text-xs text-gray-400 mt-3 shrink-0">{t.overview.note}</p>
       </div>
-
-      <Link
-        to="/zastavky"
-        title={t.nav.logStops}
-        aria-label={t.nav.logStops}
-        className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-accent text-white shadow-lg flex items-center justify-center hover:bg-accent/90 transition-colors"
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-      </Link>
     </div>
   )
 }

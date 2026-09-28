@@ -82,10 +82,10 @@ export default function Drivers() {
   )
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen">
       <Sidebar />
-      <div className="flex-1 p-9">
-        <div className="flex items-start justify-between mb-6">
+      <div className="flex-1 p-8 flex flex-col overflow-y-auto">
+        <div className="flex items-start justify-between mb-5 shrink-0">
           <div>
             <h1 className="text-2xl font-bold">{t.drivers.title}</h1>
             <p className="text-slate text-sm mt-1">{t.drivers.subtitle}</p>
@@ -98,7 +98,7 @@ export default function Drivers() {
           </button>
         </div>
 
-        {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+        {error && <p className="text-sm text-red-600 mb-4 shrink-0">{error}</p>}
 
         {loading ? (
           <Spinner />

@@ -38,9 +38,12 @@ interface AuthResponse {
 export interface VehiclePatch {
   name?: string
   plate?: string
+  photo?: string
   driver?: string | null
   lastStk?: string | null
-  stkIntervalYears?: 1 | 2
+  stkIntervalYears?: 1 | 2 | 4
+  vignettePurchasedAt?: string | null
+  vignetteIntervalDays?: 10 | 30 | 365
   inService?: boolean
   serviceReason?: string
 }
