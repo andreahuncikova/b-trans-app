@@ -26,6 +26,8 @@ Vitest + Testing Library.
 ## Stránky
 - `/` — verejná úvodná stránka
 - `/login` — prihlásenie administrátora
+- `/forgot-password` — žiadosť o odkaz na obnovenie hesla
+- `/reset-password?token=...` — nastavenie nového hesla
 - `/prehlad` — kalendár zastávok, mesačný report a export (domovská stránka admina)
 - `/zastavky` — zapísať zastávky
 - `/vodici` — vodiči

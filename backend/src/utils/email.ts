@@ -1,8 +1,7 @@
-export async function sendReminderEmail(subject: string, html: string) {
+export async function sendEmail(to: string, subject: string, html: string) {
   const apiKey = process.env.RESEND_API_KEY
-  const to = process.env.REMINDER_EMAIL_TO
-  if (!apiKey || !to) {
-    console.warn('RESEND_API_KEY alebo REMINDER_EMAIL_TO nie je nastavené, email sa neodosiela')
+  if (!apiKey) {
+    console.warn('RESEND_API_KEY nie je nastavené, email sa neodosiela')
     return
   }
 

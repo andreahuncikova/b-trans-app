@@ -1,10 +1,13 @@
 import rateLimit from 'express-rate-limit'
 
+const skip = () => process.env.NODE_ENV === 'test'
+
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  skip,
   message: { error: 'Príliš veľa pokusov, skúste to prosím neskôr.' },
 })
 
@@ -13,5 +16,15 @@ export const applicantLimiter = rateLimit({
   limit: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  skip,
   message: { error: 'Príliš veľa žiadostí, skúste to prosím neskôr.' },
+})
+
+export const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip,
+  message: { error: 'Príliš veľa pokusov, skúste to prosím neskôr.' },
 })

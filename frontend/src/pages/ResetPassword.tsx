@@ -1,28 +1,28 @@
 import { useState, type FormEvent } from 'react'
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../AuthContext.tsx'
+import { api } from '../api.ts'
 import Logo from '../components/Logo.tsx'
 
-export default function Login() {
-  const { token, login } = useAuth()
+export default function ResetPassword() {
+  const { setSession } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
-  const [email, setEmail] = useState('')
+  const [searchParams] = useSearchParams()
+  const token = searchParams.get('token')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const from = (location.state as { from?: string } | null)?.from || '/prehlad'
-
-  if (token) return <Navigate to={from} replace />
+  if (!token) return <Navigate to="/forgot-password" replace />
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      await login(email, password)
-      navigate(from, { replace: true })
+      const res = await api.resetPassword(token, password)
+      setSession(res.token, res.user)
+      navigate('/prehlad', { replace: true })
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -37,26 +37,16 @@ export default function Login() {
           <Logo />
         </Link>
 
-        <h1 className="text-lg font-bold mb-1">Prihlásenie</h1>
-        <p className="text-sm text-slate mb-5">Táto stránka je určená len pre administrátora firmy B-Trans.</p>
+        <h1 className="text-lg font-bold mb-1">Nové heslo</h1>
+        <p className="text-sm text-slate mb-5">Zadajte nové heslo pre váš účet.</p>
 
-        <label htmlFor="login-email" className="sr-only">E-mail</label>
+        <label htmlFor="reset-password" className="sr-only">Nové heslo</label>
         <input
-          id="login-email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="E-mail"
-          required
-          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mb-3"
-        />
-        <label htmlFor="login-password" className="sr-only">Heslo</label>
-        <input
-          id="login-password"
+          id="reset-password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Heslo"
+          placeholder="Nové heslo"
           required
           minLength={8}
           className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mb-3"
@@ -69,12 +59,8 @@ export default function Login() {
           disabled={loading}
           className="w-full bg-accent text-white rounded-lg py-3 font-semibold text-sm disabled:opacity-60"
         >
-          {loading ? 'Chvíľu...' : 'Prihlásiť sa'}
+          {loading ? 'Ukladám...' : 'Nastaviť heslo'}
         </button>
-
-        <Link to="/forgot-password" className="block text-center text-sm text-slate hover:text-ink mt-4">
-          Zabudli ste heslo?
-        </Link>
       </form>
     </div>
   )

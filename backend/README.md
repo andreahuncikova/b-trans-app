@@ -29,7 +29,7 @@ Vitest + Supertest, against an in-memory MongoDB instance (`mongodb-memory-serve
 
 ## API
 
-All routes except `/api/auth/register`, `/api/auth/login`, `POST /api/applicants`, and `/api/vehicles/check-reminders` require `Authorization: Bearer <token>`.
+All routes except `/api/auth/register`, `/api/auth/login`, `/api/auth/forgot-password`, `/api/auth/reset-password`, `POST /api/applicants`, and `/api/vehicles/check-reminders` require `Authorization: Bearer <token>`.
 
 | Method | Route | Notes |
 |---|---|---|
@@ -37,6 +37,8 @@ All routes except `/api/auth/register`, `/api/auth/login`, `POST /api/applicants
 | POST | `/api/auth/login` | `{ email, password }` |
 | GET | `/api/auth/me` | current user |
 | POST | `/api/auth/logout` | invalidates the current token server-side |
+| POST | `/api/auth/forgot-password` | `{ email }`; always returns a generic message, emails a reset link if the account exists |
+| POST | `/api/auth/reset-password` | `{ token, password }`; sets the new password and invalidates existing sessions |
 | GET | `/api/drivers` | list |
 | POST/PATCH/DELETE | `/api/drivers[/:id]` | admin only |
 | GET | `/api/vehicles` | list |
@@ -48,6 +50,10 @@ All routes except `/api/auth/register`, `/api/auth/login`, `POST /api/applicants
 | GET | `/api/report?year=&month=` | totals per driver for that month |
 | POST | `/api/applicants` | public careers-form submission |
 | GET | `/api/applicants` | admin only |
+
+## Password reset
+
+Forgot-password emails reuse the same `RESEND_API_KEY` / `REMINDER_EMAIL_FROM` config as the STK reminders below. The reset link points at `${CLIENT_ORIGIN}/reset-password?token=...` and expires after 1 hour.
 
 ## STK / vignette email reminders
 

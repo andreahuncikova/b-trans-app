@@ -55,6 +55,10 @@ export const api = {
     request<AuthResponse>('/auth/register', { method: 'POST', body: { name, email, password }, token }),
   me: (token: string) => request<{ user: User }>('/auth/me', { token }),
   logout: (token: string) => request<null>('/auth/logout', { method: 'POST', token }),
+  forgotPassword: (email: string) =>
+    request<{ message: string }>('/auth/forgot-password', { method: 'POST', body: { email } }),
+  resetPassword: (token: string, password: string) =>
+    request<AuthResponse>('/auth/reset-password', { method: 'POST', body: { token, password } }),
 
   getDrivers: (token: string) => request<Driver[]>('/drivers', { token }),
   addDriver: (driver: Partial<Driver>, token: string) =>

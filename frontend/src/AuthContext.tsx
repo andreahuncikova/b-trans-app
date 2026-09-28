@@ -8,6 +8,7 @@ interface AuthContextValue {
   ready: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  setSession: (token: string, user: User) => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -39,12 +40,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const login = async (email: string, password: string) => {
-    const { token, user } = await api.login(email, password)
+  const setSession = (token: string, user: User) => {
     localStorage.setItem('btrans-token', token)
     localStorage.setItem('btrans-user', JSON.stringify(user))
     setToken(token)
     setUser(user)
+  }
+
+  const login = async (email: string, password: string) => {
+    const { token, user } = await api.login(email, password)
+    setSession(token, user)
   }
 
   const logout = async () => {
@@ -62,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const value = useMemo(() => ({ token, user, ready, login, logout }), [token, user, ready])
+  const value = useMemo(() => ({ token, user, ready, login, logout, setSession }), [token, user, ready])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

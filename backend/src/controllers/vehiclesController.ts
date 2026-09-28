@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 import Vehicle from '../models/Vehicle.js'
-import { sendReminderEmail } from '../utils/email.js'
+import { sendEmail } from '../utils/email.js'
 
 const SOON_DAYS = 30
 
@@ -105,12 +105,14 @@ export async function checkReminders(_req: Request, res: Response) {
     }
   }
 
-  if (lines.length === 0) {
+  const to = process.env.REMINDER_EMAIL_TO
+  if (lines.length === 0 || !to) {
     res.json({ sent: false })
     return
   }
 
-  await sendReminderEmail(
+  await sendEmail(
+    to,
     'B-Trans: blížiace sa termíny STK / diaľničných známok',
     lines.map((l) => `<p>${l}</p>`).join('')
   )
