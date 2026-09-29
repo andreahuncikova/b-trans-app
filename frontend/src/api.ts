@@ -83,6 +83,8 @@ export const api = {
   getReport: (year: number, month: number, token: string) =>
     request<ReportData>(`/report?year=${year}&month=${month}`, { token }),
 
-  submitApplication: (applicant: { name: string; phone: string; email: string }) =>
+  submitApplication: (applicant: { name: string; phone: string; email: string; cv: string }) =>
     request<Applicant>('/applicants', { method: 'POST', body: applicant }),
+  getApplicants: (token: string) => request<Applicant[]>('/applicants', { token }),
+  deleteApplicant: (id: string, token: string) => request<null>(`/applicants/${id}`, { method: 'DELETE', token }),
 }

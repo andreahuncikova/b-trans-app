@@ -7,6 +7,7 @@ import Overview from './pages/Overview.tsx'
 import LogStops from './pages/LogStops.tsx'
 import Drivers from './pages/Drivers.tsx'
 import Vehicles from './pages/Vehicles.tsx'
+import Applicants from './pages/Applicants.tsx'
 import NotFound from './pages/NotFound.tsx'
 import ProtectedRoute from './components/ProtectedRoute.tsx'
 
@@ -21,6 +22,7 @@ export default function App() {
       <Route path="/zastavky" element={<ProtectedRoute><LogStops /></ProtectedRoute>} />
       <Route path="/vodici" element={<ProtectedRoute><Drivers /></ProtectedRoute>} />
       <Route path="/vozidla" element={<ProtectedRoute><Vehicles /></ProtectedRoute>} />
+      <Route path="/ziadosti" element={<ProtectedRoute><Applicants /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   )

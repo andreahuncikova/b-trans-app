@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { t } from '../i18n.ts'
 import { api } from '../api.ts'
@@ -104,16 +104,51 @@ export default function Landing() {
     return () => cancelAnimationFrame(frameId)
   }, [])
 
+  const MAX_CV_BYTES = 5 * 1024 * 1024
+
   const [cv, setCv] = useState({ name: '', phone: '', email: '' })
+  const [cvFile, setCvFile] = useState<File | null>(null)
   const [cvStatus, setCvStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [fileError, setFileError] = useState('')
+
+  function fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onerror = () => reject(new Error('Nepodarilo sa načítať súbor'))
+      reader.onload = () => resolve(reader.result as string)
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const handleCvFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    if (file.type !== 'application/pdf') {
+      setFileError('Súbor musí byť vo formáte PDF')
+      return
+    }
+    if (file.size > MAX_CV_BYTES) {
+      setFileError('Súbor môže mať najviac 5 MB')
+      return
+    }
+    setFileError('')
+    setCvFile(file)
+  }
 
   const submitCv = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!cvFile) {
+      setFileError('Priložte prosím životopis vo formáte PDF')
+      return
+    }
     setCvStatus('sending')
     try {
-      await api.submitApplication(cv)
+      const cvDataUrl = await fileToDataUrl(cvFile)
+      await api.submitApplication({ ...cv, cv: cvDataUrl })
       setCvStatus('sent')
       setCv({ name: '', phone: '', email: '' })
+      setCvFile(null)
     } catch {
       setCvStatus('error')
     }
@@ -147,19 +182,6 @@ export default function Landing() {
             </a>
           ))}
         </nav>
-        <div className="flex items-center gap-3.5">
-          <Link
-            to="/login"
-            title={t.landing.loginHint}
-            className="flex items-center gap-1.5 text-sm font-semibold hover:text-accent transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="4" y="11" width="16" height="10" rx="2" />
-              <path d="M8 11V7a4 4 0 018 0v4" />
-            </svg>
-            {t.landing.login}
-          </Link>
-        </div>
       </div>
 
       <div className="relative min-h-screen bg-ink text-white overflow-hidden px-6 md:px-10 lg:px-16 flex items-center py-28 lg:py-0">
@@ -305,8 +327,18 @@ export default function Landing() {
               type="email"
               className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm mb-3.5 focus:outline-none focus:ring-2 focus:ring-accent-light focus:border-accent transition-shadow"
             />
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center mb-5 text-sm text-slate">
-              {t.landing.upload} <span className="text-accent font-semibold">{t.landing.uploadAction}</span> {t.landing.uploadHint}
+            <div className="mb-5">
+              <label className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-5 text-center text-sm text-slate cursor-pointer hover:border-accent transition-colors">
+                {cvFile ? (
+                  <span className="font-semibold text-ink">{cvFile.name}</span>
+                ) : (
+                  <span>
+                    {t.landing.upload} <span className="text-accent font-semibold">{t.landing.uploadAction}</span> {t.landing.uploadHint}
+                  </span>
+                )}
+                <input type="file" accept="application/pdf" className="hidden" onChange={handleCvFileChange} />
+              </label>
+              {fileError && <p className="text-sm text-red-600 mt-2">{fileError}</p>}
             </div>
             <button
               type="submit"

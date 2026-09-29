@@ -25,7 +25,7 @@ Vitest + Supertest, against an in-memory MongoDB instance (`mongodb-memory-serve
 - **Driver** — permanent/substitute driver shown on the Drivers page.
 - **Vehicle** — fleet vehicle: plate, photo, assigned driver, last STK date, STK interval (1/2/4 years), highway vignette purchase date + duration, in-service flag + reason.
 - **LogStop** — one document per driver per day, storing stop count, used to build the monthly report.
-- **Applicant** — a careers-form submission from the public site.
+- **Applicant** — a careers-form submission from the public site, including an optional base64-encoded PDF CV (max 5MB, enforced client-side; stored directly in MongoDB, same pattern as vehicle photos).
 
 ## API
 
@@ -48,8 +48,9 @@ All routes except `/api/auth/register`, `/api/auth/login`, `/api/auth/forgot-pas
 | PUT | `/api/logstops` | upsert one day: `{ driver, date, stops }` |
 | DELETE | `/api/logstops/:id` | |
 | GET | `/api/report?year=&month=` | totals per driver for that month |
-| POST | `/api/applicants` | public careers-form submission |
+| POST | `/api/applicants` | public careers-form submission, `{ name, phone, email, cv }` |
 | GET | `/api/applicants` | admin only |
+| DELETE | `/api/applicants/:id` | admin only |
 
 ## Password reset
 

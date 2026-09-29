@@ -26,6 +26,7 @@ export default function Sidebar() {
     { to: '/zastavky', label: t.nav.logStops },
     { to: '/vodici', label: t.nav.drivers },
     { to: '/vozidla', label: t.nav.vehicles },
+    { to: '/ziadosti', label: t.nav.applicants },
   ]
 
   return (

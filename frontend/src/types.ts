@@ -56,4 +56,6 @@ export interface Applicant {
   name: string
   phone: string
   email: string
+  cv: string
+  createdAt: string
 }

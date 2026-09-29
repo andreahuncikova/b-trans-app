@@ -32,5 +32,6 @@ Vitest + Testing Library.
 - `/zastavky` — zapísať zastávky
 - `/vodici` — vodiči
 - `/vozidla` — vozidlá
+- `/ziadosti` — žiadosti o prácu (kontakt + životopis) z verejnej stránky
 
 Backend (Node/Express + MongoDB, tiež v TypeScriptu) je v `../backend`.

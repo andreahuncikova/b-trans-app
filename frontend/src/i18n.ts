@@ -4,14 +4,13 @@ export const t = {
     logStops: 'Zapísať zastávky',
     drivers: 'Vodiči',
     vehicles: 'Vozidlá',
+    applicants: 'Žiadosti',
   },
   landing: {
     navHome: 'Domov',
     navServices: 'Služby',
     navCareers: 'Kariéra',
     navContact: 'Kontakt',
-    login: 'Prihlásenie',
-    loginHint: 'Prihlásenie je určené len pre administrátora firmy',
     badge: 'Doprava po celom Slovensku aj do zahraničia',
     title: 'Spoľahlivá nákladná\ndoprava a rozvoz',
     description:
@@ -81,6 +80,14 @@ export const t = {
     total: 'Spolu za mesiac:',
     stops: 'zastávok',
     save: 'Uložiť',
+  },
+  applicants: {
+    title: 'Žiadosti',
+    subtitle: 'Životopisy a kontakty ľudí, ktorí sa hlásia cez verejnú stránku',
+    empty: 'Zatiaľ žiadne žiadosti',
+    downloadCv: 'Stiahnuť životopis',
+    noCv: 'Bez životopisu',
+    deleteConfirm: 'Naozaj vymazať túto žiadosť',
   },
   drivers: {
     title: 'Vodiči',
